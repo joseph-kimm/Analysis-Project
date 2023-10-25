@@ -38,6 +38,7 @@ public class ScheduleMaker {
 
         // Read values from the constraints file:  
         try (BufferedReader br = new BufferedReader(new FileReader(constraintsFile))) { 
+
             //first line of demo is the number of class times. 
             numTimeSlots = Integer.parseInt(br.readLine().split("\\s+")[2]); // read first line, take the 3rd word from it, a.k.a the # of class times. 
             numRooms = Integer.parseInt(br.readLine().split("\\s")[1]);
@@ -48,8 +49,11 @@ public class ScheduleMaker {
             Arrays.sort(cap); // Java Arrays library uses either quicksort or mergesort, both of which are n*log(n). Therefore, r*log(r)
             numClasses = Integer.parseInt(br.readLine().split("\\s")[1]);
             numTeachers = Integer.parseInt(br.readLine().split("\\s")[1]);
+
+
             for (int i = 0; i < numClasses; i ++) { // c iterations. 
-                classes.add(new Class(Integer.parseInt(br.readLine().split("\\s")[1]))); // store the teacher. 
+                String[] classAndTeacher = br.readLine().split("\\s");
+                classes.add(new Class(Integer.parseInt(classAndTeacher[0]), Integer.parseInt(classAndTeacher[1]) )); // store the class and the  teacher. 
             }
             
         } catch (FileNotFoundException fnf) { 
@@ -60,11 +64,16 @@ public class ScheduleMaker {
 
         
         //Initialize the conflicts array: 
+        // initializing the -1 
         this.conflict = new int[this.numClasses][this.numClasses]; 
         for(int r = 1; r < this.numClasses; r++ ) { // for each class
             this.conflict[r] = new int[this.numClasses]; // initialize each row. 
             for (int c = 0; c < r; c++) { 
-                this.conflict[r][c] = -1; 
+                if (classes.get(c).getTeacher() == classes.get(c).getTeacher()) {
+                    this.conflict[r][c] = -1;
+                } else {
+                    this.conflict[r][c] = 0;
+                }
             }
         }
 
@@ -83,9 +92,12 @@ public class ScheduleMaker {
                     preferredClass.incrementPopularity(); 
                     for (int k = j; k < 4; k++) { // for the other classes
                         if (preferredClass.getTeacher() != this.classes.get(studentPref[k]-1).getTeacher()) { // if they do not have a teacher conflict:
-                           this.conflict[studentPref[j]-1][studentPref[k]-1] = this.conflict[studentPref[j]-1][studentPref[k]-1] != -1 
+                            this.conflict[studentPref[j]-1][studentPref[k]-1] += 1;
+                            /*
+                            this.conflict[studentPref[j]-1][studentPref[k]-1] = this.conflict[studentPref[j]-1][studentPref[k]-1] != -1 
                                                                         ? this.conflict[studentPref[j]-1][studentPref[k]-1] + 1 
                                                                         : 1; // if conflicts already added, increment. Else, set to 1.
+                            */
                         }
                     }
                 } 
@@ -96,7 +108,7 @@ public class ScheduleMaker {
             System.err.println("Reading problem" + ioe);
         }
 
-        this.classes.sort(null);  // sort the classes in descending order of popularity 
+        //this.classes.sort(null);  // sort the classes in descending order of popularity 
 
         for( int i = 0; i < numClasses; i++ ) { // print each class. 
             System.out.println(classes.get(i)); 
@@ -107,8 +119,27 @@ public class ScheduleMaker {
                 System.out.println("# of conflicts between classes " + r + " and " + c + " is " + conflict[r][c]); 
             }
         }
+
+        //creating an ArrayList of all edges and sorting it
+        ArrayList<Edge> edges = new ArrayList<>();
+        for (int r = 0; r < numClasses; r++) {
+            for (int c = 0; c < r; c++) {
+                if (conflict[r][c] != -1) {
+                    edges.add(new Edge(classes.get(r), classes.get(c), conflict[r][c]));
+                    
+                }
+                
+            }
+        }
+
+        for (int i = 0; i < edges.size(); i++) {
+            System.out.println(edges.get(i));
+        }
         
     }
+
+
+
 
     /* 
      * Returns the number of time slots specified by the problem's input file. 

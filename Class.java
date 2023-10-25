@@ -1,8 +1,10 @@
 public class Class implements Comparable<Class>{
+    protected int classNumber;
     protected int teacher; 
     protected int popularity; 
 
-    public Class (int teacher) { 
+    public Class (int classNumber, int teacher) { 
+        this.classNumber = classNumber;
         this.teacher = teacher; 
     }
 
@@ -32,6 +34,10 @@ public class Class implements Comparable<Class>{
     public int getTeacher() { 
         return this.teacher; 
     }
+
+    public int getClassNumber() {
+        return this.classNumber;
+    }
     
     public void setTeacher(int newTeacher) { 
         this.teacher = newTeacher;
@@ -51,6 +57,6 @@ public class Class implements Comparable<Class>{
     }
 
     public String toString() { 
-        return "{teacher: "+ teacher + ", popularity: " + popularity + "}"; 
+        return "{class: " + classNumber + ", teacher: "+ teacher + ", popularity: " + popularity + "}"; 
     }
 }

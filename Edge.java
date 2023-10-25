@@ -5,16 +5,33 @@ public class Edge implements Comparable<Edge> {
 
     public Edge(Class c1, Class c2, int numConflicts) { 
         this.c1 = c1; 
-        this.c2 = c2; 
+        this.c2 = c2;
         this.numConflicts = numConflicts; 
     }
 
+    // getter methods
     public int getNumConflicts() { 
         return numConflicts; 
     }
 
+    public Class getc1() {
+        return c1;
+    }
+    
+    public Class getc2() {
+        return c2;
+    }
+
+    /*
+     * general implementation of a compareTo method
+     */
     @Override
-    public int compareTo() { 
-        
+    public int compareTo(Edge other) { 
+        return this.numConflicts - other.numConflicts;  
+    }
+
+    @Override
+    public String toString() {
+        return c1.getClassNumber() + "-" + c2.getClassNumber() + ":" + numConflicts;
     }
 }
