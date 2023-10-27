@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays; 
 
 public class ScheduleMaker {
-    final int preferredClassesPerStudent = 4; // number of listed preferred classes per student. 
+    final int classPerStudent = 4; // number of listed preferred classes per student. 
     private int numTimeSlots; // stores the time slots specified in the input file. 
     private int numRooms; // stores the number of rooms specified in the input file. 
     private int[] cap; // cap[i] stores the capacity of room i. 
@@ -66,20 +66,36 @@ public class ScheduleMaker {
             System.err.println("Reading problem" + ioe);
         }
 
+        // checking if classes are saved properly
+        /*
+        for (int i = 1; i < numClasses+1; i++) {
+            System.out.println(classes.get(i));
+        }
+        */
         
         //Initialize the conflicts array: 
         // initializing the -1 
         this.conflict = new int[this.numClasses + 1][this.numClasses + 1]; 
         for(int r = 1; r <= this.numClasses; r++ ) { // for each class
-            this.conflict[r] = new int[this.numClasses + 1]; // initialize each row. 
+            //this.conflict[r] = new int[this.numClasses + 1]; // initialize each row. 
             for (int c = 1; c <= r; c++) { 
-                if (classes.get(c).getTeacher() == classes.get(c).getTeacher()) {
+                if (classes.get(r).getTeacher() == classes.get(c).getTeacher()) {
                     this.conflict[r][c] = -1;
                 } else {
                     this.conflict[r][c] = 0;
                 }
             }
         }
+
+        // checking if conflicts are saved properly
+        /*
+        for(int r = 1; r <= this.numClasses; r++ ) {
+            for (int c = 1; c <= r; c++) { 
+                System.out.print(conflict[r][c] + " ");
+            }
+            System.out.println();
+        }
+        */
 
         // Then, read in values from the students file: 
         try (BufferedReader br = new BufferedReader(new FileReader(studentFile))) { 
@@ -88,18 +104,21 @@ public class ScheduleMaker {
             for (int c = 1; c < classes.size(); c++ ) { // O(c) -- initialize the student arrays for each class now that we know the number of students. 
                 classes.get(c).initializeStudents(numStudents);
             }
+
             for (int i = 1; i <= this.numStudents; i++) { // for every student (s)
                 String[] line = br.readLine().split("\\s"); // read classes in student's preference list. 
-                int[] studentPref = new int[preferredClassesPerStudent + 1]; // 1 more than the amount of prefferred classes per student. 
+                int[] studentPref = new int[classPerStudent + 1]; // 1 more than the amount of prefferred classes per student. 
                 for (int c = 1; c < studentPref.length; c++) { 
                     studentPref[c] = Integer.parseInt(line[c]); // turn into an integer ID. 
-                } 
+                }
+
                 for (int j = 1; j < studentPref.length; j++) { // for each class that the student is interested in: 
                     Class preferredClass = this.classes.get(studentPref[j]); // retrieve the preferred class
                     preferredClass.incrementPopularity(); 
                     preferredClass.addStudent(i);
+
                     for (int k = j; k < studentPref.length; k++) { // for the other classes
-                        if (preferredClass.getTeacher() != this.classes.get(studentPref[k]-1).getTeacher()) { // if they do not have a teacher conflict:
+                        if (preferredClass.getTeacher() != this.classes.get(studentPref[k]).getTeacher()) { // if they do not have a teacher conflict:
                             this.conflict[studentPref[j]][studentPref[k]] += 1;
                             this.conflict[studentPref[k]][studentPref[j]] += 1; // update the 2d array symmetrically, so that it doesn't accidentally get placed on the upper half of the 2d array and ignored. 
                         }
@@ -114,17 +133,27 @@ public class ScheduleMaker {
 
         //this.classes.sort(null);  // sort the classes in descending order of popularity 
 
-        
+        // printing conflict to see
+        /*
+        for(int r = 1; r <= this.numClasses; r++ ) {
+            for (int c = 1; c <= r; c++) { 
+                System.out.print(conflict[r][c] + " ");
+            }
+            System.out.println();
+        }
+
+
         for(int r = 1; r <= this.numClasses; r++ ) { // for each class
-            for (int c = 0; c < r; c++) { 
+            for (int c = 1; c <= r; c++) { 
                 System.out.println("# of conflicts between classes " + r + " and " + c + " is " + conflict[r][c]); 
             }
         }
+        */
 
         //creating an ArrayList of all edges and sorting it
         edges = new ArrayList<>();
-        for (int r = 1; r < classes.size(); r++) { 
-            for (int c = 1; c < r; c++) { // for each pair of classes: 
+        for (int r = 1; r <= this.numClasses; r++) { 
+            for (int c = 1; c <= r; c++) { // for each pair of classes: 
                 if (conflict[r][c] != -1) {  // if there is no teacher conflict: 
                     edges.add(new Edge(classes.get(r), classes.get(c), conflict[r][c])); // add it to the list of edges. 
                 }
@@ -132,16 +161,23 @@ public class ScheduleMaker {
             }
         }
 
-        classes.remove(0); // remove the dummy class that we added to make our index math easy. 
+        this.classes.remove(0);
+        this.classes.sort(null); // sort the classes in descending order of popularity 
 
-        for( int i = 1; i < classes.size(); i++ ) { // print each class. 
+        /*
+        for( int i = 0; i < this.numClasses; i++ ) { // print each class. 
             System.out.println(classes.get(i)); 
         }
+        */
+
 
         edges.sort(null); // sort edges in increasing order of conflicts. 
+        
+        /*
         for (int i = 0; i < edges.size(); i++) {
             System.out.println(edges.get(i));
-        }        
+        }    
+        */   
     }
 
     public void makeSchedule() { 
