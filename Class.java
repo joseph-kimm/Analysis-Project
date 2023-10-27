@@ -7,6 +7,8 @@ public class Class implements Comparable<Class>{
     protected int timeSlot; 
     protected int roomNumber;
     protected boolean[] students; 
+    protected ArrayList<Integer> interestedStudents = new ArrayList<>();
+    protected ArrayList<Integer> enrolledStudents = new ArrayList<>();
 
     public Class (int classNumber, int teacher) { 
         this.classNumber = classNumber;
@@ -47,6 +49,18 @@ public class Class implements Comparable<Class>{
      */
     public void addStudent(int student) { 
         students[student] = true; 
+    }
+
+    public void addInterestedStudent(int student) {
+        this.interestedStudents.add(student);
+    }
+
+    public void addEnrolledStudent(int student) {
+        this.enrolledStudents.add(student);
+    }
+
+    public ArrayList<Integer> getEnrolledStudent() {
+        return this.enrolledStudents;
     }
 
     /*

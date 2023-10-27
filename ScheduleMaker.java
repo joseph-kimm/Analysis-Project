@@ -3,15 +3,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader; 
 import java.io.IOException; 
 import java.util.ArrayList; 
-import java.util.Arrays; 
+import java.util.Arrays;
+import java.util.HashSet; 
+import java.io.File;
+import java.io.FileWriter;
 
 public class ScheduleMaker {
     final int classPerStudent = 4; // number of listed preferred classes per student. 
     private int numTimeSlots; // stores the time slots specified in the input file. 
     private int numRooms; // stores the number of rooms specified in the input file. 
-    private int[] cap; // cap[i] stores the capacity of room i. 
+    private ArrayList<Room> rooms = new ArrayList<Room>(); // rooms in descending order of size
     private int numClasses; // number of classes specified in the input file.
-    private ArrayList<Class> classes; // classes in descending order of popularity. 
+    private ArrayList<Class> classes = new ArrayList<Class>(); // classes in descending order of popularity. 
     private int numTeachers; // number of teachers specified in the input file. 
     private int[][] conflict; // a 2d array storing the number of conflicts between every class and every other class. 
     private int numStudents; // number of students specified in the input file. 
@@ -28,6 +31,7 @@ public class ScheduleMaker {
         //Process the input: 
         processInput(constraintsFile, studentFile); 
         makeSchedule(); 
+        writeSchedule();
     }
 
     /* 
@@ -38,7 +42,6 @@ public class ScheduleMaker {
         // we will assume that all input files will be of the same format as demo_constraints.txt and demo_studentprefs.txt
         
         //Initialize the array of classes: 
-        classes = new ArrayList<Class>(); 
         classes.add(new Class(4, 2));// add a dummy class at the beginning to make our index math a little easier. 
 
         // Read values from the constraints file:  
@@ -47,11 +50,11 @@ public class ScheduleMaker {
             //first line of demo is the number of class times. 
             numTimeSlots = Integer.parseInt(br.readLine().split("\\s+")[2]); // read first line, take the 3rd word from it, a.k.a the # of class times. 
             numRooms = Integer.parseInt(br.readLine().split("\\s")[1]);
-            cap = new int[numRooms]; // initialize the capacity array. 
             for (int i = 0; i < numRooms; i ++) { // read the rooms capacities --> r iterations. 
-                this.cap[i] = Integer.parseInt(br.readLine().split("\\s")[1]); // store the capacity of a room i. 
+                String[] roomAndSize = br.readLine().split("\\s");
+                this.rooms.add(new Room(Integer.parseInt(roomAndSize[0]), Integer.parseInt(roomAndSize[1]))); // store the capacity of a room i. 
             }
-            Arrays.sort(cap); // Java Arrays library uses either quicksort or mergesort, both of which are n*log(n). Therefore, r*log(r)
+            this.rooms.sort(null); // Java Arrays library uses either quicksort or mergesort, both of which are n*log(n). Therefore, r*log(r)
             numClasses = Integer.parseInt(br.readLine().split("\\s")[1]); // read number of classes
             numTeachers = Integer.parseInt(br.readLine().split("\\s")[1]); // read the number teachers. 
 
@@ -116,6 +119,7 @@ public class ScheduleMaker {
                     Class preferredClass = this.classes.get(studentPref[j]); // retrieve the preferred class
                     preferredClass.incrementPopularity(); 
                     preferredClass.addStudent(i);
+                    preferredClass.addInterestedStudent(i);
 
                     for (int k = j; k < studentPref.length; k++) { // for the other classes
                         if (preferredClass.getTeacher() != this.classes.get(studentPref[k]).getTeacher()) { // if they do not have a teacher conflict:
@@ -130,8 +134,6 @@ public class ScheduleMaker {
         } catch (IOException ioe) { 
             System.err.println("Reading problem" + ioe);
         }
-
-        //this.classes.sort(null);  // sort the classes in descending order of popularity 
 
         // printing conflict to see
         /*
@@ -161,8 +163,6 @@ public class ScheduleMaker {
             }
         }
 
-        this.classes.remove(0);
-        this.classes.sort(null); // sort the classes in descending order of popularity 
 
         /*
         for( int i = 0; i < this.numClasses; i++ ) { // print each class. 
@@ -170,7 +170,7 @@ public class ScheduleMaker {
         }
         */
 
-
+        classes.remove(0);
         edges.sort(null); // sort edges in increasing order of conflicts. 
         
         /*
@@ -182,23 +182,28 @@ public class ScheduleMaker {
 
     public void makeSchedule() { 
         // now that we have a list of edges and the classes sorted by popularity, we want to begin sorting classes into time slots by order of least to most conflicts. 
-        ArrayList<Class>[] timeSlots = new ArrayList[numTimeSlots];
-        for (int i = 0; i  < timeSlots.length; i++) { 
-            timeSlots[i] = new ArrayList<Class>(); 
+        ArrayList<Class>[] timeSlots = new ArrayList[numTimeSlots+1];
+        for (int i = 1; i  <= numTimeSlots; i++) { 
+            timeSlots[i] = new ArrayList<Class>();
         }
+
         Boolean[] classPlaced = new Boolean[numClasses + 1]; // true if the class is already in a timeSlot, false if not. 1 through class number to make our lives easier. index 0 stores nothing. 
         for (int i = 0; i < classPlaced.length; i++ ) { 
             classPlaced[i] = false; // every class starts as not already placed in a time slot. 
         }
+
         int numEmptyTimeSlots = numTimeSlots; // when this hits 0, stop combining into a new time slot.  
+
         for (Edge e : edges) { // for each edge, in order of increasing conflicts. 
             Class classOne = e.getc1();
             int classOneNum = classOne.getClassNumber();
             Class classTwo = e.getc2(); 
             int classTwoNum = classTwo.getClassNumber();
-            if (numEmptyTimeSlots != 0 && !classPlaced[classOneNum] && !classPlaced[classTwoNum]) { // if there is an empty time slot & neither class has been placed. 
+
+            // if there is an empty time slot & neither class has been placed.
+            if (numEmptyTimeSlots != 0 && !classPlaced[classOneNum] && !classPlaced[classTwoNum]) {  
                 // place them into the first open time slot, and adjust the number of empty time slots.  
-                int firstOpenTimeSlot = numTimeSlots - (numEmptyTimeSlots--); 
+                int firstOpenTimeSlot = numTimeSlots - (numEmptyTimeSlots--) +1; 
                 //add both classes to that time slot: 
                 timeSlots[firstOpenTimeSlot].add(classOne); 
                 classOne.setTimeSlot(firstOpenTimeSlot);
@@ -208,6 +213,7 @@ public class ScheduleMaker {
                 classTwo.setTimeSlot(firstOpenTimeSlot);
                 classPlaced[classTwoNum] = true; 
             }
+
             /*  this may be the only section of this that does not quite match up with what we discussed before. 
                 Let's say we have 3 time slots: 
                         1: A, B
@@ -221,6 +227,7 @@ public class ScheduleMaker {
 
                     NOTE: WILL NEED TO ADJUST PSEUDOCODE TO MATCH THIS!!!
                 */
+            /*
             else if (classPlaced[classOneNum] && classPlaced[classTwoNum] && timeSlots[classOne.getTimeSlot()].size() + timeSlots[classTwo.getTimeSlot()].size() <= numRooms) { // if both are placed into time slots, but merging those time slots would be fine: 
                 while(!timeSlots[classTwo.getTimeSlot()].isEmpty()) { // for each class in classTwo's time slot. 
                     // remove from classTwo's time slot and add it to the classOne' time slot: 
@@ -229,17 +236,19 @@ public class ScheduleMaker {
                     classToMove.setTimeSlot(classOne.getTimeSlot()); // adjust the moved class's time slot to match. 
                 }
             }
+            */
+
             else if ((classPlaced[classOneNum] && !classPlaced[classTwoNum])) { // else if 1 IS placed and 2 is NOT: 
-                if (timeSlots[classOne.getTimeSlot()].size() != numRooms) { // if 1's time slot is not already full: 
+                if (timeSlots[classOne.getTimeSlot()].size() < numRooms) { // if 1's time slot is not already full: 
                     // add 2 to the same time slot as 1: 
                     timeSlots[classOne.getTimeSlot()].add(classTwo); 
                     classTwo.setTimeSlot(classOne.getTimeSlot());
                     classPlaced[classTwoNum] = true; 
                 }
-                //what do we do if it can't fit in that time slot? Just keep going?
+                //what do we do if it can't fit in that time slot? Just keep going? yup!
             }
             else if (!classPlaced[classOneNum] && classPlaced[classTwoNum]) { // else if 1 is NOT placed and 2 IS.
-                if (timeSlots[classTwo.getTimeSlot()].size() != numRooms) { // if 1's time slot is not already full: 
+                if (timeSlots[classTwo.getTimeSlot()].size() < numRooms) { // if 1's time slot is not already full: 
                     // add 1 to the same time slot as 2: 
                     timeSlots[classTwo.getTimeSlot()].add(classOne); 
                     classOne.setTimeSlot(classTwo.getTimeSlot());
@@ -250,34 +259,67 @@ public class ScheduleMaker {
         }
 
         // once we have placed the classes into their time slots, remove students from classes if they have a conflict. 
-        for (int t = 1; t < timeSlots.length; t++ ) { // for each time slot, O(t)
+        for (int t = 1; t <= this.numTimeSlots; t++ ) { // for each time slot, O(t)
             timeSlots[t].sort(null); // sort each of classes in the time slots by popularity. O(c log(c)), because Java uses merge/quicksort. 
-            ArrayList<Integer> studentsInTimeSlot = new ArrayList<Integer>(); 
-            for (int r = 1; r < numRooms; r++) { // for each room in the time slot, O(r).
-                if (r < timeSlots[t].size() ) { // if there is a class in that slot: 
-                    Class classInSlot = timeSlots[t].get(r);
-                    classInSlot.setRoomNumber(r); 
-                    for (Integer student : studentsInTimeSlot) { // O(s) operation. 
-                        classInSlot.removeStudent(student); // by how the remove/add words in Class, this is fine even if the student was not already in the class. Also, O(1). 
+
+            HashSet<Integer> studentsInTimeSlot = new HashSet<Integer>(); // number of students taking a class in time slot
+
+            for (int r = 0; r < timeSlots[t].size(); r++) { // for each room in the time slot, O(r).
+                Class classInSlot = timeSlots[t].get(r); 
+                classInSlot.setRoomNumber(rooms.get(r).getRoomNumber());
+
+                int limit = rooms.get(r).getRoomSize();
+
+                for (Integer student: classInSlot.interestedStudents) {
+                    if (!studentsInTimeSlot.contains(student)) {
+                        classInSlot.addEnrolledStudent(student);
+                        studentsInTimeSlot.add(student);
                     }
-                        studentsInTimeSlot.addAll(classInSlot.getStudentsList()); // add students from this class to the list of students in this time slot. O(s) 
+
+                    limit--;
+
+                    if (limit == 0) {break;}
                 }
-            } 
-            System.out.println("time Slot " + t + " contains: " + timeSlots[t] + "\n");
+            }
         }
-        printSchedule();
     }
 
     public void printSchedule() { 
         System.out.println("Course\tRoom\tTeacher\tTime\tStudent");
         for(Class c : classes) { 
             System.out.printf("%d\t%d\t%d\t%d\t", c.getClassNumber(), c.getRoomNumber(), c.getTeacher(), c.getTimeSlot()); 
-            for (Integer student : c.getStudentsList()) { 
+            for (Integer student : c.getEnrolledStudent()) { 
                 System.out.print(student + " ");
             }
-            System.out.println("");
+            System.out.println();
         }
     }
+
+    public void writeSchedule() {
+        try {
+            // Create a FileWriter with the given file name
+            FileWriter fileWriter = new FileWriter("schedule.txt");
+    
+            // Write the content to the file
+            fileWriter.write("Course\tRoom\tTeacher\tTime\tStudent\n");
+
+            for(Class c : classes) { 
+                String formatText = String.format("%d\t%d\t%d\t%d\t", c.getClassNumber(), c.getRoomNumber(), c.getTeacher(), c.getTimeSlot()); 
+                fileWriter.write(formatText);
+                for (Integer student : c.getEnrolledStudent()) { 
+                    fileWriter.write(student + " ");
+                }
+                fileWriter.write("\n");
+            }
+           // Close the FileWriter to save the changes
+            fileWriter.close();
+            
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+    
 
     /* 
      * Returns the number of time slots specified by the problem's input file. 
