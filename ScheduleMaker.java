@@ -28,12 +28,14 @@ public class ScheduleMaker {
     }
     
     public ScheduleMaker(String constraintsFile, String studentFile) { 
+        long start = System.nanoTime();
         //Process the input: 
         processInput(constraintsFile, studentFile); 
         makeSchedule(); 
         writeSchedule();
+        long finish = System.nanoTime();
+        System.out.printf("Time elapsed: %,d milliseconds%n", (finish-start)/1000000);
     }
-
     /* 
      * Given a filename, will initialize class variables. 
      * @param fileName the file to read
@@ -258,6 +260,8 @@ public class ScheduleMaker {
             // else neither class has been placed but there are no empty time slots. Therefore, do nothing. 
         }
 
+        float bestCaseValue = 4 * this.numStudents;
+        float studentPrefValue = 0;
         // once we have placed the classes into their time slots, remove students from classes if they have a conflict. 
         for (int t = 1; t <= this.numTimeSlots; t++ ) { // for each time slot, O(t)
             timeSlots[t].sort(null); // sort each of classes in the time slots by popularity. O(c log(c)), because Java uses merge/quicksort. 
@@ -274,6 +278,7 @@ public class ScheduleMaker {
                     if (!studentsInTimeSlot.contains(student)) {
                         classInSlot.addEnrolledStudent(student);
                         studentsInTimeSlot.add(student);
+                        studentPrefValue++;
                     }
 
                     limit--;
@@ -282,6 +287,9 @@ public class ScheduleMaker {
                 }
             }
         }
+        System.out.println("Student Preference Value: " + studentPrefValue);
+        System.out.println("Best Case Student Value: " + bestCaseValue);
+        System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
     }
 
     public void printSchedule() { 
