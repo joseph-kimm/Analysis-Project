@@ -6,8 +6,7 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeSlot; 
     protected int roomNumber;
-    //protected boolean[] students; 
-    //protected ArrayList<Integer> interestedStudents = new ArrayList<>();
+    protected ArrayList<Integer> interestedStudents = new ArrayList<>();
     protected ArrayList<Integer> enrolledStudents = new ArrayList<>();
 
     public Class (int classNumber, int teacher) { 
@@ -15,20 +14,6 @@ public class Class implements Comparable<Class>{
         this.teacher = teacher; 
     }
 
-    /*
-     * Initializes the boolean array containing whether or not a student of a given index is in the class or not. 
-     * All students begin as in the class, and conflicts are considered and removed once classes are placed into rooms and time slots. 
-     * 
-     * Originally this step was in the constructor, but at the time that we need to call the constructor, we have not read in the number of students, 
-     * so this seemed like a reasonable workaround. 
-     */
-    public void initializeStudents(int numStudents) { 
-        /*this.students = new boolean[numStudents + 1];
-        for(int i = 1; i < students.length; i++ ) { 
-            students[i] = false; 
-        }*/
-    }
-  
     /*
      * Increment the popularity of the class by a given amount
      * @param incBy the amount to increment the popularity by
@@ -45,16 +30,15 @@ public class Class implements Comparable<Class>{
     }
 
     /*
-     * Mark a given student as in the class.  
+     * add students who are interested in the course
      */
-    /*  public void addStudent(int student) { 
-        students[student] = true; 
-    }*/
-
-    /*public void addInterestedStudent(int student) {
+    public void addInterestedStudent(int student) {
         this.interestedStudents.add(student);
-    }*/
+    }
 
+    /*
+     * add students who are enrolled in the course
+     */
     public void addEnrolledStudent(int student) {
         this.enrolledStudents.add(student);
     }
@@ -62,23 +46,6 @@ public class Class implements Comparable<Class>{
     public ArrayList<Integer> getEnrolledStudent() {
         return this.enrolledStudents;
     }
-
-    /*
-     * Mark a given student as not in the class. 
-     */
-    /*public void removeStudent(int student) { 
-        students[student] = false; 
-    }*/
-
-    /*public ArrayList<Integer> getStudentsList() { 
-        ArrayList<Integer> studentsList = new ArrayList<Integer>(); 
-        for (int i = 1; i < students.length; i++ ) { 
-            if(students[i]) { // if the student is in the class
-                studentsList.add(i); 
-            }
-        }
-        return studentsList; 
-    }*/
 
     public int getClassNumber() {
         return this.classNumber;
