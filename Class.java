@@ -6,8 +6,8 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeSlot; 
     protected int roomNumber;
-    protected boolean[] students; 
-    protected ArrayList<Integer> interestedStudents = new ArrayList<>();
+    //protected boolean[] students; 
+    //protected ArrayList<Integer> interestedStudents = new ArrayList<>();
     protected ArrayList<Integer> enrolledStudents = new ArrayList<>();
 
     public Class (int classNumber, int teacher) { 
@@ -23,10 +23,10 @@ public class Class implements Comparable<Class>{
      * so this seemed like a reasonable workaround. 
      */
     public void initializeStudents(int numStudents) { 
-        this.students = new boolean[numStudents + 1];
+        /*this.students = new boolean[numStudents + 1];
         for(int i = 1; i < students.length; i++ ) { 
             students[i] = false; 
-        }
+        }*/
     }
   
     /*
@@ -47,13 +47,13 @@ public class Class implements Comparable<Class>{
     /*
      * Mark a given student as in the class.  
      */
-    public void addStudent(int student) { 
+    /*  public void addStudent(int student) { 
         students[student] = true; 
-    }
+    }*/
 
-    public void addInterestedStudent(int student) {
+    /*public void addInterestedStudent(int student) {
         this.interestedStudents.add(student);
-    }
+    }*/
 
     public void addEnrolledStudent(int student) {
         this.enrolledStudents.add(student);
@@ -66,11 +66,11 @@ public class Class implements Comparable<Class>{
     /*
      * Mark a given student as not in the class. 
      */
-    public void removeStudent(int student) { 
+    /*public void removeStudent(int student) { 
         students[student] = false; 
-    }
+    }*/
 
-    public ArrayList<Integer> getStudentsList() { 
+    /*public ArrayList<Integer> getStudentsList() { 
         ArrayList<Integer> studentsList = new ArrayList<Integer>(); 
         for (int i = 1; i < students.length; i++ ) { 
             if(students[i]) { // if the student is in the class
@@ -78,7 +78,7 @@ public class Class implements Comparable<Class>{
             }
         }
         return studentsList; 
-    }
+    }*/
 
     public int getClassNumber() {
         return this.classNumber;

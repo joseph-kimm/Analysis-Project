@@ -80,8 +80,10 @@ public class ScheduleMaker {
         
         //Initialize the conflicts array: 
         // initializing the -1 
-        this.conflict = new int[this.numClasses + 1][this.numClasses + 1]; 
-        for(int r = 1; r <= this.numClasses; r++ ) { // for each class
+        //currently c^2, include in the later part.  
+        this.conflict = new int[this.numClasses + 1][this.numClasses + 1]; // Java initializes all values of 2D array to 0 in O(1)
+        //deprecated-- teacher conflict is handled later in code. 
+        /*for(int r = 1; r <= this.numClasses; r++ ) { // for each class
             //this.conflict[r] = new int[this.numClasses + 1]; // initialize each row. 
             for (int c = 1; c <= r; c++) { 
                 if (classes.get(r).getTeacher() == classes.get(c).getTeacher()) {
@@ -90,7 +92,7 @@ public class ScheduleMaker {
                     this.conflict[r][c] = 0;
                 }
             }
-        }
+        }*/
 
         // checking if conflicts are saved properly
         /*
@@ -120,14 +122,19 @@ public class ScheduleMaker {
                 for (int j = 1; j < studentPref.length; j++) { // for each class that the student is interested in: 
                     Class preferredClass = this.classes.get(studentPref[j]); // retrieve the preferred class
                     preferredClass.incrementPopularity(); 
-                    preferredClass.addStudent(i);
-                    preferredClass.addInterestedStudent(i);
+                    //preferredClass.addStudent(i);
+                    //preferredClass.addInterestedStudent(i);
 
                     for (int k = j; k < studentPref.length; k++) { // for the other classes
                         if (preferredClass.getTeacher() != this.classes.get(studentPref[k]).getTeacher()) { // if they do not have a teacher conflict:
                             this.conflict[studentPref[j]][studentPref[k]] += 1;
                             this.conflict[studentPref[k]][studentPref[j]] += 1; // update the 2d array symmetrically, so that it doesn't accidentally get placed on the upper half of the 2d array and ignored. 
                         }
+                        /*else { 
+                            this.conflict[studentPref[j]][studentPref[k]] = -1;
+                            this.conflict[studentPref[k]][studentPref[j]] = -1;
+                        } Perhaps don't even need to do this, actually! 
+                        */
                     }
                 } 
             }
@@ -156,12 +163,11 @@ public class ScheduleMaker {
 
         //creating an ArrayList of all edges and sorting it
         edges = new ArrayList<>();
-        for (int r = 1; r <= this.numClasses; r++) { 
-            for (int c = 1; c <= r; c++) { // for each pair of classes: 
-                if (conflict[r][c] != -1) {  // if there is no teacher conflict: 
-                    edges.add(new Edge(classes.get(r), classes.get(c), conflict[r][c])); // add it to the list of edges. 
+        for (int row = 1; row <= this.numClasses; row++) { 
+            for (int col = 1; col <= row; col++) { // for each pair of classes: 
+                if (classes.get(row).getTeacher() != classes.get(col).getTeacher()) {  // if there is no teacher conflict: 
+                    edges.add(new Edge(classes.get(row), classes.get(col), conflict[row][col])); // add it to the list of edges. 
                 }
-
             }
         }
 
@@ -274,7 +280,9 @@ public class ScheduleMaker {
 
                 int limit = rooms.get(r).getRoomSize();
 
-                for (Integer student: classInSlot.interestedStudents) {
+
+                //deprecated. Relies on interested Students in class. 
+                /*for (Integer student: classInSlot.interestedStudents) {
                     if (!studentsInTimeSlot.contains(student)) {
                         classInSlot.addEnrolledStudent(student);
                         studentsInTimeSlot.add(student);
@@ -284,7 +292,7 @@ public class ScheduleMaker {
                     limit--;
 
                     if (limit == 0) {break;}
-                }
+                }*/
             }
         }
         System.out.println("Student Preference Value: " + studentPrefValue);
