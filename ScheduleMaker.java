@@ -25,7 +25,7 @@ public class ScheduleMaker {
     public static void main(String[] args) { 
 
         if (args.length != 2) {
-            System.out.println("There should be 2 inputs!");
+            System.out.println("Usage: java ScheduleMaker <constraints.txt> <student_preferences.txt>");
             return;
         }
 
@@ -183,11 +183,14 @@ public class ScheduleMaker {
         for (int i = 1; i  <= numTimeSlots; i++) { 
             timeSlots[i] = new ArrayList<Class>();
         }
+        // If a professor has been placed, the index of its timeslot
+        // Note: This method of checking for professor conflict relies on profs teaching max. 2 courses.
+        int profTime[] = new int[numTeachers + 1];
 
         // true if the class is already in a timeSlot, false if not. 1 through class number to make our lives easier.
         Boolean[] classPlaced = new Boolean[numClasses + 1];
-        for (int i = 0; i < classPlaced.length; i++ ) { 
 
+        for (int i = 0; i < classPlaced.length; i++ ) { 
             // every class starts as not already placed in a time slot. 
             classPlaced[i] = false; 
         }
@@ -214,21 +217,24 @@ public class ScheduleMaker {
                 timeSlots[firstOpenTimeSlot].add(classOne); 
                 classOne.setTimeSlot(firstOpenTimeSlot);
                 classPlaced[classOneNum] = true; 
+                profTime[classOne.getTeacher()] = firstOpenTimeSlot;
                 
                 timeSlots[firstOpenTimeSlot].add(classTwo); 
                 classTwo.setTimeSlot(firstOpenTimeSlot);
                 classPlaced[classTwoNum] = true; 
+                profTime[classTwo.getTeacher()] = firstOpenTimeSlot;
             }
 
             // else if 1 IS placed and 2 is NOT: 
             else if ((classPlaced[classOneNum] && !classPlaced[classTwoNum])) {
 
-                // if 1's time slot is not already full: 
-                if (timeSlots[classOne.getTimeSlot()].size() < numRooms) { 
+                // if 1's time slot is not already full and 2's prof is not placed at 1's timeslot: 
+                if (timeSlots[classOne.getTimeSlot()].size() < numRooms && profTime[classTwo.getTeacher()] != classOne.getTimeSlot()) { 
 
                     // add 2 to the same time slot as 1: 
                     timeSlots[classOne.getTimeSlot()].add(classTwo); 
                     classTwo.setTimeSlot(classOne.getTimeSlot());
+                    profTime[classTwo.getTeacher()] = classOne.getTimeSlot();
                     classPlaced[classTwoNum] = true; 
                 }
             }
@@ -236,12 +242,13 @@ public class ScheduleMaker {
             // else if 1 is NOT placed and 2 IS.
             else if (!classPlaced[classOneNum] && classPlaced[classTwoNum]) { 
 
-                // if 2's time slot is not already full: 
-                if (timeSlots[classTwo.getTimeSlot()].size() < numRooms) { 
+                // if 2's time slot is not already full and 1's prof is not placed at 2's timeslot: 
+                if (timeSlots[classTwo.getTimeSlot()].size() < numRooms && profTime[classOne.getTeacher()] != classTwo.getTimeSlot()) { 
 
                     // add 1 to the same time slot as 2: 
                     timeSlots[classTwo.getTimeSlot()].add(classOne); 
                     classOne.setTimeSlot(classTwo.getTimeSlot());
+                    profTime[classOne.getTeacher()] = classTwo.getTimeSlot();
                     classPlaced[classOneNum] = true; 
                 }
             }   
