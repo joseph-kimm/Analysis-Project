@@ -50,7 +50,9 @@ public class ScheduleMaker {
      * @param fileName the file to read
      */
     public void processInput(String constraintsFile, String studentFile) { 
-        
+
+        //(1) to check time: reading the constraints file: O(r+c)
+
         // add a dummy class at the beginning to make our index math a little easier. 
         classes.add(new Class(-1, -1));
 
@@ -93,10 +95,14 @@ public class ScheduleMaker {
             System.err.println("Reading problem" + ioe);
         }
         
+        // (1) check time end
+
         //Initialize the conflicts array: 
         // Java initializes all values of 2D array to 0 in O(1)
         this.conflict = new int[this.numClasses + 1][this.numClasses + 1]; 
   
+
+        // (2) to check time: reading students file : O(4)
 
         // Then, read in values from the students file: 
         try (BufferedReader br = new BufferedReader(new FileReader(studentFile))) {
@@ -125,7 +131,7 @@ public class ScheduleMaker {
                     preferredClass.addInterestedStudent(i);
 
                     // for the other classes
-                    for (int k = j; k < studentPref.length; k++) {
+                    for (int k = j+1; k < studentPref.length; k++) {
 
                         // if two classes does not have professor conflict
                         if (preferredClass.getTeacher() != this.classes.get(studentPref[k]).getTeacher()) { 
