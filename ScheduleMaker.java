@@ -36,22 +36,24 @@ public class ScheduleMaker {
     }
     
     public ScheduleMaker(String constraintsFile, String studentFile) { 
-        long start = System.nanoTime();
         //Process the input: 
-        processInput(constraintsFile, studentFile); 
+        readingInput(constraintsFile, studentFile); 
+        long start = System.nanoTime();
+        createClassPairs();
         makeSchedule(); 
-        writeSchedule();
         long finish = System.nanoTime();
-        System.out.printf("Time elapsed: %,d milliseconds%n", (finish-start)/1000000);
+        System.out.printf("Time elapsed: %,d microseconds%n", (finish-start)/1000);
+        writeSchedule();
     }
     
     /* 
      * Given a filename, will initialize class variables. 
      * @param fileName the file to read
      */
-    public void processInput(String constraintsFile, String studentFile) { 
+    public void readingInput(String constraintsFile, String studentFile) { 
 
         //(1) to check time: reading the constraints file: O(r+c)
+        long time1start = System.nanoTime();
 
         // add a dummy class at the beginning to make our index math a little easier. 
         classes.add(new Class(-1, -1));
@@ -96,13 +98,16 @@ public class ScheduleMaker {
         }
         
         // (1) check time end
+        long time1end = System.nanoTime();
+        System.out.printf("Check point 1 (reading constraint file): O(r+c) %,d microseconds%n", (time1end-time1start)/1000);
 
         //Initialize the conflicts array: 
         // Java initializes all values of 2D array to 0 in O(1)
         this.conflict = new int[this.numClasses + 1][this.numClasses + 1]; 
-  
 
-        // (2) to check time: reading students file : O(4)
+  
+        // (2) to check time: reading students file : 6s = O(s)
+        long time2start = System.nanoTime();
 
         // Then, read in values from the students file: 
         try (BufferedReader br = new BufferedReader(new FileReader(studentFile))) {
@@ -157,6 +162,17 @@ public class ScheduleMaker {
             System.err.println("Reading problem" + ioe);
         }
 
+        // (2) check time 
+        long time2end = System.nanoTime();
+        System.out.printf("Check point 2 (reading student file): O(s) %,d microseconds%n", (time2end-time2start)/1000);
+
+
+    }
+    public void createClassPairs() {
+ 
+        // (3) time check for checking all class pair: c(c+1) /2 = O(c^2)
+        long time3start = System.nanoTime();
+
         //creating an ArrayList of all edges and sorting it
         edges = new ArrayList<>();
 
@@ -171,11 +187,22 @@ public class ScheduleMaker {
             }
         }
 
+        // (3) time end
+        long time3end = System.nanoTime();
+        System.out.printf("Check point 3 (checking every pair of classes): O(c^2) %,d microseconds%n", (time3end-time3start)/1000);
+
         // removing the dummy class in ArrayList of classes
         classes.remove(0);
 
-        // sort edges in increasing order of conflicts. 
+        // (4) time check for sorting pairs of classes: O(c^2 log c^2)
+        long time4start = System.nanoTime();
+
+        // sort edges in increasing order of conflicts.
         edges.sort(null); 
+
+        // (4) time end
+        long time4end = System.nanoTime();
+        System.out.printf("Check point 4 (sorting pairs of classes): O(c^2 log c^2) %,d microseconds%n", (time4end-time4start)/1000);
     }
 
     /*
@@ -183,6 +210,11 @@ public class ScheduleMaker {
      */
     public void makeSchedule() { 
         // now that we have a list of edges and the classes sorted by popularity, we want to begin sorting classes into time slots by order of least to most conflicts. 
+
+
+        // (4.5) time check for initializing time slots and other things
+        long time45start = System.nanoTime();
+
 
         // array of time slots, where each time slot have an ArrayList of classes 
         ArrayList<Class>[] timeSlots = new ArrayList[numTimeSlots+1];
@@ -196,6 +228,7 @@ public class ScheduleMaker {
         // true if the class is already in a timeSlot, false if not. 1 through class number to make our lives easier.
         Boolean[] classPlaced = new Boolean[numClasses + 1];
 
+
         for (int i = 0; i < classPlaced.length; i++ ) { 
             // every class starts as not already placed in a time slot. 
             classPlaced[i] = false; 
@@ -203,6 +236,13 @@ public class ScheduleMaker {
 
         // when this hits 0, stop combining into a new time slot.  
         int numEmptyTimeSlots = numTimeSlots;
+
+        long time45end = System.nanoTime();
+        System.out.printf("Check point 4.5 (initializing time slot) %,d microseconds%n", (time45end-time45start)/1000);
+
+
+        // (5) accesing each pair of classes: O(c^2)
+        long time5start = System.nanoTime();
 
         // for each edge, in order of increasing conflicts. 
         for (Edge e : edges) {
@@ -262,8 +302,16 @@ public class ScheduleMaker {
         // else neither class has been placed but there are no empty time slots. Therefore, do nothing. 
         }
 
+        // (5) time end
+        long time5end = System.nanoTime();
+        System.out.printf("Check point 5 (accesing each pair and adding them to time slots): O(c^2) %,d microseconds%n", (time5end-time5start)/1000);
+        // (5) time end
+
         float bestCaseValue = 4 * this.numStudents;
         float studentPrefValue = 0;
+
+        // (6) sorting and addition students O(t rlog r) + O(s)
+        long time6start = System.nanoTime();
 
         // once we have class schedule set, start adding students to classes: O(s)
         for (int t = 1; t <= this.numTimeSlots; t++ ) {
@@ -310,10 +358,22 @@ public class ScheduleMaker {
         }
 
 
-        // proint out important values
+        // (6) time end
+        long time6end = System.nanoTime();
+        System.out.printf("Check point 6 (sorting time slot and adding students): O(t rlog r) + O(s) %,d microseconds%n", (time6end-time6start)/1000);
+
+
+        // (7) printing values
+        long time7start = System.nanoTime();
+
+        // print out important values
         System.out.println("Student Preference Value: " + studentPrefValue);
         System.out.println("Best Case Student Value: " + bestCaseValue);
         System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
+
+        long time7end = System.nanoTime();
+        System.out.printf("Check point 7 (printing stuff) %,d microseconds%n", (time6end-time6start)/1000);
+
     }
 
     /*
@@ -334,6 +394,10 @@ public class ScheduleMaker {
      * write schedule for in schedule.txt
      */
     public void writeSchedule() {
+
+    // (7) time check for writing schedule
+    long time7start = System.nanoTime();
+
         try {
             // Create a FileWriter with the given file name
             FileWriter fileWriter = new FileWriter("schedule.txt");
@@ -359,6 +423,11 @@ public class ScheduleMaker {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+
+        // (7) time end
+        long time7end = System.nanoTime();
+        System.out.printf("Check point 7 (writing to file): O(s) %,d microseconds%n", (time7end-time7start)/1000);
+
     }
     
 
