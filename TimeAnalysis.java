@@ -4,7 +4,7 @@ public class TimeAnalysis { // number of times to run because each test.
     public static void main(String[] args) {
         TimeAnalysis ta = new TimeAnalysis(); 
          // JIT runs:  
-        for (int i = 1; i < ta.numRuns; i ++ ) { 
+        for (int i = 1; i <= ta.numRuns; i ++ ) { 
            ScheduleMaker sm = new ScheduleMaker(new String("demo_files/10Students/s10-" + i + "_const.txt"), new String("demo_files/10Students/s10-" + i + "_pref.txt"));
            System.out.println(sm.getNanoSecondsElapsed());
         }
@@ -17,7 +17,7 @@ public class TimeAnalysis { // number of times to run because each test.
 
     public void printStudentTimes(int s) {
         long nanoSecondsElapsed = 0; 
-        for (int i = 1; i < 5; i++ ) { // for each randomized demo file
+        for (int i = 1; i <= 5; i++ ) { // for each randomized demo file
             ScheduleMaker sm = new ScheduleMaker(new String("demo_files/" + s + "Students/s" + s + "-" + i + "_const.txt"), new String("demo_files/" + s + "Students/s" + s + "-" + i + "_pref.txt"));
             nanoSecondsElapsed += sm.getNanoSecondsElapsed();
         }
