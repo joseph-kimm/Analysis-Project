@@ -18,6 +18,8 @@ public class ScheduleMaker {
     private int numStudents; // number of students specified in the input file. 
     private ArrayList<Edge> edges; // conflict between 2 classes in increasing order of popularity
     private long nanoSecondsElapsed; 
+    private float bestCaseValue;
+    private float studentPrefValue;
 
     // All arrays go from 1 to the number of classes + 1, with 0 as a buffer. 
 
@@ -41,6 +43,9 @@ public class ScheduleMaker {
         createClassPairs();
         makeSchedule(); 
         nanoSecondsElapsed = (System.nanoTime() - start);
+        System.out.println("Student Preference Value: " + studentPrefValue);
+        System.out.println("Best Case Student Value: " + bestCaseValue);
+        System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
         //System.out.printf("Time elapsed: %,d microseconds%n", (finish-start)/1000);
         writeSchedule();
     }
@@ -259,23 +264,27 @@ public class ScheduleMaker {
                 // place them into the first open time slot, and adjust the number of empty time slots.  
                 int firstOpenTimeSlot = numTimeSlots - (numEmptyTimeSlots--) +1; 
 
+
                 //add both classes to that time slot: 
                 timeSlots[firstOpenTimeSlot].add(classOne); 
                 classOne.setTimeSlot(firstOpenTimeSlot);
                 classPlaced[classOneNum] = true; 
                 profTime[classOne.getTeacher()] = firstOpenTimeSlot;
-                
-                timeSlots[firstOpenTimeSlot].add(classTwo); 
-                classTwo.setTimeSlot(firstOpenTimeSlot);
-                classPlaced[classTwoNum] = true; 
-                profTime[classTwo.getTeacher()] = firstOpenTimeSlot;
+
+                // checking the odd case of having only 1 room!
+                if (timeSlots[firstOpenTimeSlot].size() < numRooms) {
+                    timeSlots[firstOpenTimeSlot].add(classTwo); 
+                    classTwo.setTimeSlot(firstOpenTimeSlot);
+                    classPlaced[classTwoNum] = true; 
+                    profTime[classTwo.getTeacher()] = firstOpenTimeSlot;
+                }
             }
 
             // else if 1 IS placed and 2 is NOT: 
             else if ((classPlaced[classOneNum] && !classPlaced[classTwoNum])) {
 
                 // if 1's time slot is not already full and 2's prof is not placed at 1's timeslot: 
-                if (timeSlots[classOne.getTimeSlot()].size() + 1 < numRooms && profTime[classTwo.getTeacher()] != classOne.getTimeSlot()) { 
+                if (timeSlots[classOne.getTimeSlot()].size() < numRooms && profTime[classTwo.getTeacher()] != classOne.getTimeSlot()) { 
 
                     // add 2 to the same time slot as 1: 
                     timeSlots[classOne.getTimeSlot()].add(classTwo); 
@@ -289,7 +298,7 @@ public class ScheduleMaker {
             else if (!classPlaced[classOneNum] && classPlaced[classTwoNum]) { 
 
                 // if 2's time slot is not already full and 1's prof is not placed at 2's timeslot: 
-                if (timeSlots[classTwo.getTimeSlot()].size() + 1 < numRooms && profTime[classOne.getTeacher()] != classTwo.getTimeSlot()) { 
+                if (timeSlots[classTwo.getTimeSlot()].size() < numRooms && profTime[classOne.getTeacher()] != classTwo.getTimeSlot()) { 
 
                     // add 1 to the same time slot as 2: 
                     timeSlots[classTwo.getTimeSlot()].add(classOne); 
@@ -307,8 +316,8 @@ public class ScheduleMaker {
         //System.out.printf("Check point 5 (accesing each pair and adding them to time slots): O(c^2) %,d microseconds%n", (time5end-time5start)/1000);
         // (5) time end
 
-        float bestCaseValue = 4 * this.numStudents;
-        float studentPrefValue = 0;
+        this.bestCaseValue = 4 * this.numStudents;
+        this.studentPrefValue = 0;
 
         // (6) sorting and addition students O(t rlog r) + O(s)
         //long time6start = System.nanoTime();
@@ -367,10 +376,6 @@ public class ScheduleMaker {
         //long time7start = System.nanoTime();
 
         // print out important values
-        System.out.println("Student Preference Value: " + studentPrefValue);
-        System.out.println("Best Case Student Value: " + bestCaseValue);
-        System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
-        
         //long time7end = System.nanoTime();
         //System.out.printf("Check point 7 (printing stuff) %,d microseconds%n", (time6end-time6start)/1000);
 
