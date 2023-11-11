@@ -178,7 +178,7 @@ public class ScheduleMaker {
 
         // for each pair of classes
         for (int row = 1; row <= this.numClasses; row++) { 
-            for (int col = 1; col <= row; col++) { 
+            for (int col = 1; col < row; col++) { 
 
                 // if they do not conflict, add it to the Arraylist of edges
                 if (classes.get(row).getTeacher() != classes.get(col).getTeacher()) {
@@ -275,7 +275,7 @@ public class ScheduleMaker {
             else if ((classPlaced[classOneNum] && !classPlaced[classTwoNum])) {
 
                 // if 1's time slot is not already full and 2's prof is not placed at 1's timeslot: 
-                if (timeSlots[classOne.getTimeSlot()].size() < numRooms && profTime[classTwo.getTeacher()] != classOne.getTimeSlot()) { 
+                if (timeSlots[classOne.getTimeSlot()].size() + 1 < numRooms && profTime[classTwo.getTeacher()] != classOne.getTimeSlot()) { 
 
                     // add 2 to the same time slot as 1: 
                     timeSlots[classOne.getTimeSlot()].add(classTwo); 
@@ -289,7 +289,7 @@ public class ScheduleMaker {
             else if (!classPlaced[classOneNum] && classPlaced[classTwoNum]) { 
 
                 // if 2's time slot is not already full and 1's prof is not placed at 2's timeslot: 
-                if (timeSlots[classTwo.getTimeSlot()].size() < numRooms && profTime[classOne.getTeacher()] != classTwo.getTimeSlot()) { 
+                if (timeSlots[classTwo.getTimeSlot()].size() + 1 < numRooms && profTime[classOne.getTeacher()] != classTwo.getTimeSlot()) { 
 
                     // add 1 to the same time slot as 2: 
                     timeSlots[classTwo.getTimeSlot()].add(classOne); 
@@ -323,7 +323,7 @@ public class ScheduleMaker {
             HashSet<Integer> studentsInTimeSlot = new HashSet<Integer>(); 
 
             // each class in time slot from most popular class
-            for (int r = 0; r < timeSlots[t].size(); r++) {
+            for (int r = 0; r < timeSlots[t].size() - 1; r++) {
 
                 // get room
                 Class classInSlot = timeSlots[t].get(r); 
@@ -403,7 +403,7 @@ public class ScheduleMaker {
             FileWriter fileWriter = new FileWriter("schedule.txt");
     
             // Write the header to the file
-            fileWriter.write("Course\tRoom\tTeacher\tTime\tStudent\n");
+            fileWriter.write("Course\tRoom\tTeacher\tTime\tStudents\n");
 
             // for each class, write all the info of the class 
             for(Class c : classes) { 
