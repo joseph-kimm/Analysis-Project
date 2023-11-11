@@ -229,7 +229,7 @@ public class ScheduleMaker {
         Boolean[] classPlaced = new Boolean[numClasses + 1];
 
 
-        for (int i = 0; i < classPlaced.length; i++ ) { 
+        for (int i = 1; i < classPlaced.length; i++ ) { 
             // every class starts as not already placed in a time slot. 
             classPlaced[i] = false; 
         }
@@ -323,7 +323,7 @@ public class ScheduleMaker {
             HashSet<Integer> studentsInTimeSlot = new HashSet<Integer>(); 
 
             // each class in time slot from most popular class
-            for (int r = 0; r < timeSlots[t].size() - 1; r++) {
+            for (int r = 0; r < timeSlots[t].size(); r++) {
 
                 // get room
                 Class classInSlot = timeSlots[t].get(r); 
@@ -367,10 +367,10 @@ public class ScheduleMaker {
         //long time7start = System.nanoTime();
 
         // print out important values
-        /*System.out.println("Student Preference Value: " + studentPrefValue);
+        System.out.println("Student Preference Value: " + studentPrefValue);
         System.out.println("Best Case Student Value: " + bestCaseValue);
         System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
-        */
+        
         //long time7end = System.nanoTime();
         //System.out.printf("Check point 7 (printing stuff) %,d microseconds%n", (time6end-time6start)/1000);
 
