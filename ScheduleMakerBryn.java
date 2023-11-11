@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.HashSet; 
 import java.io.FileWriter;
 
-public class ScheduleMaker {
-    final int classPerStudent = 4; // number of listed preferred classes per student. 
+public class ScheduleMakerBryn {
     private int numTimeSlots; // stores the time slots specified in the input file. 
     private int numRooms; // stores the number of rooms specified in the input file. 
-    private ArrayList<Room> rooms = new ArrayList<Room>(); // rooms in descending order of size
+    private ArrayList<Room> rooms = new ArrayList<Room>(); //rooms in descending order of size
     private int numClasses; // number of classes specified in the input file.
     private ArrayList<Class> classes = new ArrayList<Class>(); // classes in descending order of popularity. 
     private int numTeachers; // number of teachers specified in the input file. 
@@ -24,17 +23,17 @@ public class ScheduleMaker {
     public static void main(String[] args) { 
 
         if (args.length != 2) {
-            System.out.println("Usage: java ScheduleMaker <constraints.txt> <student_preferences.txt>");
+            System.out.println("Usage: java ScheduleMakerJoseph <constraints.txt> <student_preferences.txt>");
             return;
         }
 
         String constraint = args[0];
         String studentPref = args[1];
-        ScheduleMaker demo = new ScheduleMaker(constraint, studentPref);
+        ScheduleMakerBryn demo = new ScheduleMakerBryn(constraint, studentPref);
         // idea being that each schedule maker is given an input file, which is processed in its constructor
     }
     
-    public ScheduleMaker(String constraintsFile, String studentFile) { 
+    public ScheduleMakerBryn(String constraintsFile, String studentFile) { 
         //Process the input: 
         readingInput(constraintsFile, studentFile); 
         long start = System.nanoTime();
@@ -367,10 +366,10 @@ public class ScheduleMaker {
         //long time7start = System.nanoTime();
 
         // print out important values
-        /*System.out.println("Student Preference Value: " + studentPrefValue);
+        System.out.println("Student Preference Value: " + studentPrefValue);
         System.out.println("Best Case Student Value: " + bestCaseValue);
         System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
-        */
+        
         //long time7end = System.nanoTime();
         //System.out.printf("Check point 7 (printing stuff) %,d microseconds%n", (time6end-time6start)/1000);
 
