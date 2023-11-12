@@ -2,8 +2,6 @@
 use strict;
 use POSIX;
 
-my $maxroomcapacity = 1000;
-my $minroomcapacity = 10;
 
 if (!$ARGV[0] || !$ARGV[1] || !$ARGV[2] || !$ARGV[3] || !$ARGV[4] || !$ARGV[5]) {
 
@@ -29,6 +27,11 @@ my $numteachers = $numclasses / 2;
 my $constraintfile = $ARGV[4];
 my $prefsfile = $ARGV[5];
 
+my $classesperstudent = 4;
+
+my $maxroomcapacity = ($numstudents * $classesperstudent) / ($numclasses);
+my $minroomcapacity = 10;
+
 if ($constraintfile) {
 	$constraintfile =~ /^(.+)$/;
 	$constraintfile = $1;
@@ -39,7 +42,6 @@ if ($prefsfile) {
 	$prefsfile = $1;
 }
 
-my $classesperstudent = 4;
 
 if ($numclasses * $maxroomcapacity < $numstudents*4) {
     print "The number of students must be less than the number of classes times one-forth the max room capacity (default 100, you can change the script to increase this.\n";
