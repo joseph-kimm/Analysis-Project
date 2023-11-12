@@ -1,2 +1,2 @@
 #!/bin/sh
-java MyMain $1 $2 $3
+java ScheduleMaker $1 $2 $3
