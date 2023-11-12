@@ -1,2 +1,5 @@
 # Compiled class file
 *.class
+
+# Randomly generated constraint and student preferences
+/demo_files
