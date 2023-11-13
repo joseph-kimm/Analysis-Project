@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+""" 
+Description:    Creates output constraints and student preference files based on an input Bryn Mawr enrollment csv (found in /data).
+Usage:          python get_bmc_info.py <enrollment.csv> <student_prefs.txt> <constraints.txt>
+Last Modified:  Nov 12, 2023
+"""
+
 import csv
 import sys
 

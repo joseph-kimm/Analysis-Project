@@ -1,3 +1,8 @@
+/**
+ * Description:     Stores the data for a the conflicts between a pair of two classes. One conflict is counted if a student is interested 
+ *                  in both classes in the pair.
+ * Last Modified:   Nov 12, 2023
+ */
 
 public class Edge implements Comparable<Edge> {
     protected Class c1; 
