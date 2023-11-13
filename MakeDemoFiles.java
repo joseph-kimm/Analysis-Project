@@ -1,4 +1,9 @@
-
+/**
+ * Description:     Generates sets of constraint/student preference files for various values of a desired independent variable.
+ *                  Updates other variables proportionally where necessary to adhere to constraint requirements.
+ * Usage:           java MakeDemoFiles <s - to only analyze students> <c - to only analyze classes>
+ * Last Modified:   Nov 12, 2023
+ */
 
 import java.lang.ProcessBuilder; 
 import java.io.IOException;

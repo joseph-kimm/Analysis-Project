@@ -1,3 +1,8 @@
+/**
+ * Description:     Stores the data for a single class available for a schedule, as well as a comparator based on popularity (interested students).
+ * Last Modified:   Nov 12, 2023
+ */
+
 import java.util.ArrayList;
 
 public class Class implements Comparable<Class>{

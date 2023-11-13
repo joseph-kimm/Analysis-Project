@@ -1,3 +1,8 @@
+/**
+ * Description:     Stores the data for a single timeslot, including the days of the week, and start and end minute and hour.
+ * Last Modified:   Nov 12, 2023
+ */
+
 import java.util.Set;
 
 public class Time {
