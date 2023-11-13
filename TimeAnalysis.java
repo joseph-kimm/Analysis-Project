@@ -31,8 +31,10 @@ public class TimeAnalysis { // number of times to run because each test.
             }
             if (JITtotal != 0) { 
                 System.out.print("s\tavgMicroSeconds\n");
-                for (int c : ta.X) { 
-                    ta.printClassTimes(c); 
+                int i = 0;
+                while (ta.X[i] <= 10000) { 
+                    ta.printClassTimes(ta.X[i]); 
+                    i++; 
                 }
             }
             else { 
