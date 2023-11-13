@@ -43,6 +43,7 @@ public class MakeDemoFiles {
 
     public void makeStudentFiles(String varToChange) { 
         try { 
+            new ProcessBuilder("rm", "-r", "demo_files").start(); // make demo_files folder, if it does not already exist. 
             new ProcessBuilder("mkdir", "demo_files").start(); // make demo_files folder, if it does not already exist. 
 
             if (varToChange.equals("s")) { // if we're changing students: 

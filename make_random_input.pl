@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
-= Description: 	Makes a randomized constraints and student preferences file according to specified variables, after checking that they 
+=cut
+ Description: 	Makes a randomized constraints and student preferences file according to specified variables, after checking that they 
 			   	satisfy all constraints.
   Usage: 	   	perl make_random_input.pl <number of rooms> <number of classes> <number of class times> <number of students> <contraint 
   			   	file> <student prefs file>
