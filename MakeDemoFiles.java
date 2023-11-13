@@ -19,7 +19,7 @@ public class MakeDemoFiles {
     final int r = 5;
     final int c = 20;
     final int t = 10; 
-    final static String[] validVarsToChange = {"c", "s"};
+    final static String[] validVarsToChange = {"c", "s", "t"};
     public static void main(String[] args) { 
         MakeDemoFiles mdf = new MakeDemoFiles(args);        
     }
@@ -87,6 +87,33 @@ public class MakeDemoFiles {
                                                             Integer.toString(1000),
                                                             "demo_files/Classes/" + c + "/const-" + i + ".txt",
                                                             "demo_files/Classes/" + c + "/pref-" + i + ".txt"
+                                                            );
+                        pb.redirectErrorStream(true);
+                        File log = new File("log.txt"); 
+                        pb.redirectOutput(log);
+                        Process p = pb.start(); 
+                    }
+                }
+            }
+            else if (varToChange.equals("t")) { 
+                new ProcessBuilder("mkdir", "demo_files/TimeSlots").start(); //  make folder to hold Classes files, if it does not already exist. 
+                
+                int[] T = {1, 2, 3, 4, 5, 6, 7, 8, 9,
+                           10, 20, 30, 40, 50, 60, 70, 80, 90,
+                           100, 200, 300, 400, 500};
+                for (int t : T) { 
+                    
+                    new ProcessBuilder("mkdir", "demo_files/TimeSlots/" + t).start(); // make folder to hold files with c number of classes, if it does not already exist. 
+                    
+                    for (int i = 1; i <= 5; i ++ ) { 
+                        ProcessBuilder pb = new ProcessBuilder("Perl", 
+                                                            "make_random_input.pl",
+                                                            Integer.toString(r), // number of rooms must scale accordingly with classes. 
+                                                            Integer.toString(c), 
+                                                            Integer.toString(t),
+                                                            Integer.toString(),
+                                                            "demo_files/TimeSlots/" + c + "/const-" + i + ".txt",
+                                                            "demo_files/TimeSlots/" + c + "/pref-" + i + ".txt"
                                                             );
                         pb.redirectErrorStream(true);
                         File log = new File("log.txt"); 

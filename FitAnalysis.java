@@ -19,7 +19,7 @@ public class FitAnalysis { // number of times to run because each test.
                 }
             }
             else { 
-                System.out.println("Oops! Something went wrong-- nanoseconds returned equals 0. That shouldn't happen!");
+                System.out.println("Oops! Something went wrong-- fit returned equals 0. That shouldn't happen!");
             }  
         }
         if (args.length == 0 || args[0].equals("c")) { 
@@ -27,7 +27,7 @@ public class FitAnalysis { // number of times to run because each test.
             int JITtotal = 0; 
             for (int i = 1; i <= fa.numRuns; i ++ ) { 
                 ScheduleMaker sm = new ScheduleMaker(new String("demo_files/Classes/10/const-" + i + ".txt"), new String("demo_files/Classes/10/pref-" + i + ".txt"));
-                JITtotal += sm.getNanoSecondsElapsed();
+                JITtotal += sm.getFit();
             }
             if (JITtotal != 0) { 
                 System.out.print("c\tavgFit\n");
@@ -38,9 +38,35 @@ public class FitAnalysis { // number of times to run because each test.
                 }
             }
             else { 
-                System.out.println("Oops! Something went wrong-- nanoseconds returned equals 0. That shouldn't happen!");
+                System.out.println("Oops! Something went wrong-- fit  returned equals 0. That shouldn't happen!");
             }            
         }  
+        if (args.length == 0 || args[0].equals("t")) { 
+            // JIT runs:  
+            int JITtotal = 0; 
+            for (int i = 1; i <= fa.numRuns; i ++ ) { 
+                ScheduleMaker sm = new ScheduleMaker(new String("demo_files/Classes/10/const-" + i + ".txt"), new String("demo_files/Classes/10/pref-" + i + ".txt"));
+                JITtotal += sm.getFit();
+            }
+            if (JITtotal != 0 ) { 
+                System.out.print("c\tavgFit\n");
+                for (int t = 1; t < 10; t++) { 
+                    fa.printTimeSlotFit(t); 
+                }
+                for (int i = 10; i < 100; i += 10) {
+                    fa.printTimeSlotFit(t);     
+                } 
+                for (int i = 100; i <= 500; i += 50) {
+                    fa.printTimeSlotFit(t);     
+                } 
+            }
+            else {
+                System.out.println("Oops! Something went wrong-- fit returned equals 0. That shouldn't happen!");
+            }
+        }   
+        if (args.length == 0 || args[0].equals("r")) { 
+
+        }
     }
 
     public void printStudentFit(int s) {
