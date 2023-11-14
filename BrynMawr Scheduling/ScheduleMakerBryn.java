@@ -11,47 +11,48 @@ import java.util.HashSet;
 import java.io.FileWriter;
 
 public class ScheduleMakerBryn {
-    final int classPerStudent = 4;
+    private static float bestCaseValue = 0;
+    private static float studentEnrolledValue = 0;
+    
     private int numTimeSlots; // stores the time slots specified in the input file.
     private ArrayList<Time> timeSlots = new ArrayList<Time>(); 
+    private boolean[][] timeConflict; // 2d array storing whether there is conflict between two tiemslows
 
     private int numRooms; // stores the number of rooms specified in the input file. 
-    private ArrayList<Room> rooms = new ArrayList<Room>(); //rooms in descending order of size
+    private ArrayList<Room> rooms = new ArrayList<Room>(); //rooms, the only one with 0 index
 
     private int numClasses; // number of classes specified in the input file.
-    private ArrayList<String> classNumbers = new ArrayList<>();
-    private HashMap<String, Class> classes = new HashMap<String, Class>(); // classes in descending order of popularity. 
+    private ArrayList<String> classNumbers = new ArrayList<>(); // accessing each class by index rather than class number
+    private HashMap<String, Class> classes = new HashMap<String, Class>();
+    private int[][] conflict; // a 2d array storing the number of conflicts between every class and every other class. 
 
     private int numProfessors; // number of teachers specified in the input file. 
-    private ArrayList<Professor> professors = new ArrayList<Professor>();
+    private HashMap<String, Professor> professors = new HashMap<>(); //
 
-    private int[][] conflict; // a 2d array storing the number of conflicts between every class and every other class. 
     private int numStudents; // number of students specified in the input file. 
-    private ArrayList<Edge> edges; // conflict between 2 classes in increasing order of popularity
+    private ArrayList<Edge> edges = new ArrayList<>(); // conflict between 2 classes in increasing order of popularity
     private long nanoSecondsElapsed; 
 
     public static void main(String[] args) { 
 
         if (args.length != 2) {
-            System.out.println("Usage: java ScheduleMakerBryn <constraints.txt> <student_preferences.txt>");
+            System.out.println("Usage: java <constraints.txt> <student_preferences.txt>");
             return;
         }
 
         String constraint = args[0];
         String studentPref = args[1];
-        ScheduleMakerBryn demo = new ScheduleMakerBryn(constraint, studentPref);
         // idea being that each schedule maker is given an input file, which is processed in its constructor
-    }
-    
-    public ScheduleMakerBryn(String constraintsFile, String studentFile) { 
-        //Process the input: 
-        readingInput(constraintsFile, studentFile); 
-        long start = System.nanoTime();
-        createClassPairs();
-        makeSchedule(); 
-        nanoSecondsElapsed = (System.nanoTime() - start);
-        //System.out.printf("Time elapsed: %,d microseconds%n", (finish-start)/1000);
-        writeSchedule();
+        ScheduleMakerBryn maker = new ScheduleMakerBryn();
+        maker.readingInput(constraint, studentPref);
+        maker.createClassPairs();
+        maker.createTimeMatrix();
+        maker.makeSchedule();
+        maker.writeSchedule();
+
+        System.out.println("Student Preference Value: " + studentEnrolledValue);
+        System.out.println("Best Case Student Value: " + bestCaseValue);
+        System.out.printf("Fit: %2.2f%%%n", studentEnrolledValue/bestCaseValue * 100);
     }
     
     /* 
@@ -158,9 +159,20 @@ public class ScheduleMakerBryn {
             // taking each class and its professor 
             for (int i = 1; i <= numClasses; i ++) { 
                 String[] classAndTeacher = br.readLine().split("\\s");
-                classes.put(classAndTeacher[0], new Class(i, classAndTeacher[0], new Professor(classAndTeacher[1])));
+                
+                if (!professors.containsKey(classAndTeacher[1])) {
+                    professors.put(classAndTeacher[1], new Professor(classAndTeacher[1]));
+                }
+
+                classes.put(classAndTeacher[0], new Class(i, classAndTeacher[0], classAndTeacher[1]));
                 classNumbers.add(classAndTeacher[0]);
             }
+
+            /*
+            for (String classNum: classes.keySet()) {
+                System.out.println(classes.get(classNum));
+            }
+            */
             
         // error in case file does not open
         } catch (FileNotFoundException fnf) { 
@@ -189,9 +201,9 @@ public class ScheduleMakerBryn {
                 // stores preferred classes for each student
                 ArrayList<String> studentPref = new ArrayList<>();
                 for (int c = 1; c < line.length; c++) {
+                    bestCaseValue += 1;
                     studentPref.add(line[c]);
                 }
-
                     
                 // for each class that the student is interested in: 
                 for (int j = 0; j < studentPref.size(); j++) {
@@ -200,14 +212,14 @@ public class ScheduleMakerBryn {
                     Class preferredClass = this.classes.get(studentPref.get(j));
                     preferredClass.incrementPopularity(); 
                     preferredClass.addInterestedStudent(student);
-
+                    
                     // for the other classes
                     for (int k = j+1; k < studentPref.size(); k++) {
 
                         Class otherClass = this.classes.get(studentPref.get(k));
 
                         // if two classes does not have professor conflict
-                        if (!preferredClass.getProfessor().getProfessorNumber().equals(otherClass.getProfessor().getProfessorNumber())) { 
+                        if (!preferredClass.getProfessor().equals(otherClass.getProfessor())) { 
 
                             // update the 2d array symmetrically to cover both diagonals
                             this.conflict[preferredClass.getIndex()][otherClass.getIndex()] += 1;
@@ -231,10 +243,9 @@ public class ScheduleMakerBryn {
         }
     }
 
+    //creating an ArrayList of all edges and sorting it
     public void createClassPairs() {
 
-        //creating an ArrayList of all edges and sorting it
-        edges = new ArrayList<>();
 
         // for each pair of classes
         for (int row = 1; row <= this.numClasses; row++) { 
@@ -251,138 +262,171 @@ public class ScheduleMakerBryn {
         edges.sort(null); 
     }
 
+    // creating a 2d array that stores whether a 2 times conflict or not
+    public void createTimeMatrix() {
+        this.timeConflict = new boolean[this.numTimeSlots + 1][this.numTimeSlots + 1];
 
-    /*
+        for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
+            for (int t2 = 1; t2 <= t1; t2++) {
+
+                if (t1 == t2) {
+                    this.timeConflict[t1][t2] = true;
+                }
+
+                Time time1 = timeSlots.get(t1);
+                Time time2 = timeSlots.get(t2);
+                boolean timeConflict = checkingTimeConflict(time1, time2);
+
+                this.timeConflict[t1][t2] = timeConflict;
+                this.timeConflict[t2][t1] = timeConflict;
+            }
+        }
+    }
+
+
+    public static boolean checkingTimeConflict(Time time1, Time time2) {
+        boolean matchingDay = false;
+        for (String day : time1.getDays()) {
+            if (time2.getDays().contains(day)) {
+                matchingDay = true;
+            }
+        }
+        
+        boolean conflict = false;
+
+        if (matchingDay) {
+            // if time conflicts
+            if ((time1.getEndHour() > time2.getStartHour() || (time1.getEndHour() == time2.getStartHour() && time1.getEndMinute() > time2.getStartMinute())) &&
+            (time2.getEndHour() > time1.getStartHour() ||  (time2.getEndHour() == time1.getStartHour() && time2.getEndMinute() > time1.getStartMinute()))) {
+                conflict = true;
+            }
+        }
+        
+        return conflict;
+    }
+
+     /*
      * assign classes to room and time slot, assign students to classes
      */
     public void makeSchedule() { 
         // now that we have a list of edges and the classes sorted by popularity, we want to begin sorting classes into time slots by order of least to most conflicts. 
 
-
-        // (4.5) time check for initializing time slots and other things
-        //long time45start = System.nanoTime();
-
-
         // array of time slots, where each time slot have an ArrayList of classes 
-        ArrayList<Class>[] timeSlots = new ArrayList[numTimeSlots+1];
+        ArrayList<Class>[] timeSlotClasses = new ArrayList[numTimeSlots+1];
         for (int i = 1; i  <= numTimeSlots; i++) { 
-            timeSlots[i] = new ArrayList<Class>();
-        }
-        // If a professor has been placed, the index of its timeslot
-        // Note: This method of checking for professor conflict relies on profs teaching max. 2 courses.
-        int profTime[] = new int[numProfessors + 1];
-
-        // true if the class is already in a timeSlot, false if not. 1 through class number to make our lives easier.
-        Boolean[] classPlaced = new Boolean[numClasses + 1];
-
-
-        for (int i = 0; i < classPlaced.length; i++ ) { 
-            // every class starts as not already placed in a time slot. 
-            classPlaced[i] = false; 
+            timeSlotClasses[i] = new ArrayList<Class>();
         }
 
-        // when this hits 0, stop combining into a new time slot.  
-        int numEmptyTimeSlots = numTimeSlots;
-
-        //long time45end = System.nanoTime();
-        //System.out.printf("Check point 4.5 (initializing time slot) %,d microseconds%n", (time45end-time45start)/1000);
-
-
-        // (5) accesing each pair of classes: O(c^2)
-        //long time5start = System.nanoTime();
+        // current time slot
+        int currentTimeSlot = 1;
 
         // for each edge, in order of increasing conflicts. 
         for (Edge e : edges) {
 
             // get two classes with smallest conflict
             Class classOne = e.getc1();
-            int classOneNum = classOne.get();
             Class classTwo = e.getc2(); 
-            int classTwoNum = classTwo.getClassNumber();
 
             // if there is an empty time slot & neither class has been placed.
-            if (numEmptyTimeSlots != 0 && !classPlaced[classOneNum] && !classPlaced[classTwoNum]) {  
+            if (currentTimeSlot <= numTimeSlots && !classOne.getPlaced() && !classTwo.getPlaced()) {
 
-                // place them into the first open time slot, and adjust the number of empty time slots.  
-                int firstOpenTimeSlot = numTimeSlots - (numEmptyTimeSlots--) +1; 
+                Professor professorOne = professors.get(classOne.getProfessor());
+                Professor professorTwo = professors.get(classTwo.getProfessor());
+
+                //check if professors of both classes do not conflict with this time
+                for (int time_index : professorOne.getTeachingTimes()) {
+                    if (timeConflict[currentTimeSlot][time_index]) {
+                        continue;
+                    }
+                }
+
+                for (int time_index : professorTwo.getTeachingTimes()) {
+                    if (timeConflict[currentTimeSlot][time_index]) {
+                        continue;
+                    }
+                }
 
                 //add both classes to that time slot: 
-                timeSlots[firstOpenTimeSlot].add(classOne); 
-                classOne.setTimeSlot(firstOpenTimeSlot);
-                classPlaced[classOneNum] = true; 
-                profTime[classOne.getTeacher()] = firstOpenTimeSlot;
+                timeSlotClasses[currentTimeSlot].add(classOne); 
+                classOne.setTimeSlot(currentTimeSlot);
+                classOne.setPlaced(true);
+                professorOne.addTeachingTime(currentTimeSlot);
                 
-                timeSlots[firstOpenTimeSlot].add(classTwo); 
-                classTwo.setTimeSlot(firstOpenTimeSlot);
-                classPlaced[classTwoNum] = true; 
-                profTime[classTwo.getTeacher()] = firstOpenTimeSlot;
+                timeSlotClasses[currentTimeSlot].add(classTwo); 
+                classTwo.setTimeSlot(currentTimeSlot);
+                classTwo.setPlaced(true);
+                professorTwo.addTeachingTime(currentTimeSlot);
+
+                //incrementing current timeslot
+                currentTimeSlot ++;
             }
 
             // else if 1 IS placed and 2 is NOT: 
-            else if ((classPlaced[classOneNum] && !classPlaced[classTwoNum])) {
+            else if (classOne.getPlaced() && !classTwo.getPlaced()) {
 
-                // if 1's time slot is not already full and 2's prof is not placed at 1's timeslot: 
-                if (timeSlots[classOne.getTimeSlot()].size() < numRooms && profTime[classTwo.getTeacher()] != classOne.getTimeSlot()) { 
+                Professor professorTwo = professors.get(classTwo.getProfessor());
 
-                    // add 2 to the same time slot as 1: 
-                    timeSlots[classOne.getTimeSlot()].add(classTwo); 
+                // checking that professor for classtwo does not cnflict with class1 timeslot
+                for (int time_index : professorTwo.getTeachingTimes()) {
+                    if (timeConflict[classOne.getTimeSlot()][time_index]) {
+                        continue;
+                    }
+                }
+ 
+                if (timeSlotClasses[classOne.getTimeSlot()].size() < numRooms) {
+                    timeSlotClasses[classOne.getTimeSlot()].add(classTwo); 
                     classTwo.setTimeSlot(classOne.getTimeSlot());
-                    profTime[classTwo.getTeacher()] = classOne.getTimeSlot();
-                    classPlaced[classTwoNum] = true; 
+                    classTwo.setPlaced(true);
+                    professorTwo.addTeachingTime(classOne.getTimeSlot());
                 }
             }
 
             // else if 1 is NOT placed and 2 IS.
-            else if (!classPlaced[classOneNum] && classPlaced[classTwoNum]) { 
+            else if (!classOne.getPlaced() && classTwo.getPlaced()) { 
 
-                // if 2's time slot is not already full and 1's prof is not placed at 2's timeslot: 
-                if (timeSlots[classTwo.getTimeSlot()].size() < numRooms && profTime[classOne.getTeacher()] != classTwo.getTimeSlot()) { 
+                Professor professorOne = professors.get(classOne.getProfessor());
 
-                    // add 1 to the same time slot as 2: 
-                    timeSlots[classTwo.getTimeSlot()].add(classOne); 
+                // checking that professor for classtwo does not cnflict with class1 timeslot
+                for (int time_index : professorOne.getTeachingTimes()) {
+                    if (timeConflict[classTwo.getTimeSlot()][time_index]) {
+                        continue;
+                    }
+                }
+ 
+                if (timeSlotClasses[classTwo.getTimeSlot()].size() < numRooms) {
+                    timeSlotClasses[classTwo.getTimeSlot()].add(classOne); 
                     classOne.setTimeSlot(classTwo.getTimeSlot());
-                    profTime[classOne.getTeacher()] = classTwo.getTimeSlot();
-                    classPlaced[classOneNum] = true; 
+                    classOne.setPlaced(true);
+                    professorOne.addTeachingTime(classOne.getTimeSlot());
                 }
             }   
 
         // else neither class has been placed but there are no empty time slots. Therefore, do nothing. 
         }
 
-        // (5) time end
-        //long time5end = System.nanoTime();
-        //System.out.printf("Check point 5 (accesing each pair and adding them to time slots): O(c^2) %,d microseconds%n", (time5end-time5start)/1000);
-        // (5) time end
-
-        float bestCaseValue = 4 * this.numStudents;
-        float studentPrefValue = 0;
-
-        // (6) sorting and addition students O(t rlog r) + O(s)
-        //long time6start = System.nanoTime();
-
         // once we have class schedule set, start adding students to classes: O(s)
         for (int t = 1; t <= this.numTimeSlots; t++ ) {
 
             // sort each of classes in the time slots by popularity. O(c log(c)), because Java uses merge/quicksort. 
-            timeSlots[t].sort(null); 
+            timeSlotClasses[t].sort(null); 
 
             // students taking a class in specific time slot
-            HashSet<Integer> studentsInTimeSlot = new HashSet<Integer>(); 
+            HashSet<String> studentsInTimeSlot = new HashSet<>(); 
 
             // each class in time slot from most popular class
-            for (int r = 0; r < timeSlots[t].size(); r++) {
+            for (int r = 0; r < timeSlotClasses[t].size(); r++) {
 
                 // get room
-                Class classInSlot = timeSlots[t].get(r); 
+                Class classInSlot = timeSlotClasses[t].get(r); 
 
                 // set the room number of the class
-                classInSlot.setRoomNumber(rooms.get(r).getRoomNumber());
+                classInSlot.setRoomName(rooms.get(r).getRoomName());
 
                 //get the room size
                 int limit = rooms.get(r).getRoomSize();
 
                 // for each student who is interested in the class
-                for (Integer student: classInSlot.interestedStudents) {
+                for (String student: classInSlot.interestedStudents) {
 
                     // if student is not already in this time slot
                     if (!studentsInTimeSlot.contains(student)) {
@@ -392,7 +436,7 @@ public class ScheduleMakerBryn {
                         studentsInTimeSlot.add(student);
 
                         // increase the pref value
-                        studentPrefValue++;
+                        studentEnrolledValue++;
                     }
 
                     // decrease room limit by 1
@@ -403,34 +447,15 @@ public class ScheduleMakerBryn {
                 }
             }
         }
-
-
-        // (6) time end
-        //long time6end = System.nanoTime();
-        //System.out.printf("Check point 6 (sorting time slot and adding students): O(t rlog r) + O(s) %,d microseconds%n", (time6end-time6start)/1000);
-
-
-        // (7) printing values
-        //long time7start = System.nanoTime();
-
-        // print out important values
-        System.out.println("Student Preference Value: " + studentPrefValue);
-        System.out.println("Best Case Student Value: " + bestCaseValue);
-        System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
-        
-        //long time7end = System.nanoTime();
-        //System.out.printf("Check point 7 (printing stuff) %,d microseconds%n", (time6end-time6start)/1000);
-
     }
 
-    /*
-     * print schedule
-     */
     public void printSchedule() { 
         System.out.println("Course\tRoom\tTeacher\tTime\tStudent");
-        for(Class c : classes) { 
-            System.out.printf("%d\t%d\t%d\t%d\t", c.getClassNumber(), c.getRoomNumber(), c.getTeacher(), c.getTimeSlot()); 
-            for (Integer student : c.getEnrolledStudent()) { 
+        for(int i = 1; i < classNumbers.size(); i++) { 
+            String classNumber = classNumbers.get(i);
+            Class c = classes.get(classNumber);
+            System.out.printf("%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+            for (String student : c.getEnrolledStudent()) { 
                 System.out.print(student + " ");
             }
             System.out.println();
@@ -441,74 +466,36 @@ public class ScheduleMakerBryn {
      * write schedule for in schedule.txt
      */
     public void writeSchedule() {
-
-    // (7) time check for writing schedule
-    //long time7start = System.nanoTime();
-
-        try {
-            // Create a FileWriter with the given file name
-            FileWriter fileWriter = new FileWriter("schedule.txt");
     
-            // Write the header to the file
-            fileWriter.write("Course\tRoom\tTeacher\tTime\tStudents\n");
-
-            // for each class, write all the info of the class 
-            for(Class c : classes) { 
-                String formatText = String.format("%d\t%d\t%d\t%d\t", c.getClassNumber(), c.getRoomNumber(), c.getTeacher(), c.getTimeSlot()); 
-                fileWriter.write(formatText);
-                for (Integer student : c.getEnrolledStudent()) { 
-                    fileWriter.write(student + " ");
+            try {
+                // Create a FileWriter with the given file name
+                FileWriter fileWriter = new FileWriter("schedule.txt");
+        
+                // Write the header to the file
+                fileWriter.write("Course\tRoom\tTeacher\tTime\tStudents\n");
+    
+                // for each class, write all the info of the class 
+                for(int i = 1; i < classNumbers.size(); i++) { 
+                    String classNumber = classNumbers.get(i);
+                    Class c = classes.get(classNumber); 
+                    String formatText = String.format("%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+                    fileWriter.write(formatText);
+                    for (String student : c.getEnrolledStudent()) { 
+                        fileWriter.write(student + " ");
+                    }
+                    fileWriter.write("\n");
                 }
-                fileWriter.write("\n");
+    
+               // Close the FileWriter to save the changes
+                fileWriter.close();
+                
+            // catch error
+            } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
             }
-
-           // Close the FileWriter to save the changes
-            fileWriter.close();
-            
-        // catch error
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
         }
-
-        // (7) time end
-        //long time7end = System.nanoTime();
-        //System.out.printf("Check point 7 (writing to file): O(s) %,d microseconds%n", (time7end-time7start)/1000);
-
-    }
-    
-
-    /* 
-     * Returns the number of time slots specified by the problem's input file. 
-     * @return the number of time slots. 
-     */
-    public int getNumTimeSlots() { 
-        return numTimeSlots; 
-    }
-    
-    /* 
-     * Returns the number of rooms specified by the problem's input file. 
-     * @return the number of rooms. 
-     */
-    public int getNumRooms() { 
-        return numRooms; 
-    }
-
-    /*
-     * Returns the number of classes specified by the problem's input file.
-     * @return the number of classes.
-     */
-    public int getNumClasses() { 
-        return numClasses; 
-    }
-
-    /*
-     * Returns the number of teachers specified by the problem's input file.
-     * @return the number of teachers.
-     */
-    public int getnumProfessorshers() { 
-        return numProfessors; 
-    }
+   
 
     public long getNanoSecondsElapsed() { 
         return nanoSecondsElapsed; 
