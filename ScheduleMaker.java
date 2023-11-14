@@ -44,8 +44,8 @@ public class ScheduleMaker {
         makeSchedule(); 
         nanoSecondsElapsed = (System.nanoTime() - start);
         /*System.out.println("Student Preference Value: " + studentPrefValue);
-        System.out.println("Best Case Student Value: " + bestCaseValue);
-        System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);*/
+        System.out.println("Best Case Student Value: " + bestCaseValue);*/
+        System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
         //System.out.printf("Time elapsed: %,d microseconds%n", (finish-start)/1000);
         writeSchedule();
     }

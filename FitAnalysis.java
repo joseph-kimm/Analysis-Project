@@ -4,7 +4,7 @@ public class FitAnalysis { // number of times to run because each test.
     public static void main(String[] args) {
         FitAnalysis fa = new FitAnalysis(); 
         
-        MakeDemoFiles mdf = new MakeDemoFiles(args); 
+        MakeDemoFiles mdf = new MakeDemoFiles(args);        
 
         if (args.length == 0 || args[0].equals("s")) { 
             int JITtotal = 0; 
@@ -65,7 +65,7 @@ public class FitAnalysis { // number of times to run because each test.
             }
         }   
         if (args.length == 0 || args[0].equals("r")) { 
-
+            
         }
     }
 

@@ -15,17 +15,23 @@ public class MakeDemoFiles {
                             2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 
                             25000, 50000, 75000, 100000, 
                             250000, 500000};
+    final static int[] T = {1, 2, 3, 4, 5, 6, 7, 8, 9,
+                           10, 20, 30, 40, 50, 60, 70, 80, 90,
+                           100, 200, 300, 400, 500};
     final static int numRuns = 5; 
     final int r = 5;
     final int c = 20;
     final int t = 10; 
+    final int s = 1000; 
     final static String[] validVarsToChange = {"c", "s", "t"};
     public static void main(String[] args) { 
         MakeDemoFiles mdf = new MakeDemoFiles(args);        
     }
+    
 
     public MakeDemoFiles(String[] args) { 
-        if (args.length > 0) { 
+        makeStudentFiles("t");
+        /*if (args.length > 0) { 
             for (String varToChange : args) { 
                 if (isValidVariable(varToChange)) { 
                     makeStudentFiles(varToChange); 
@@ -38,7 +44,7 @@ public class MakeDemoFiles {
             for (String validVar : validVarsToChange) { 
                 makeStudentFiles(validVar); 
             }
-        }
+        }*/
     }
 
     public void makeStudentFiles(String varToChange) { 
@@ -84,7 +90,7 @@ public class MakeDemoFiles {
                                                             Integer.toString(c/10), // number of rooms must scale accordingly with classes. 
                                                             Integer.toString(c), 
                                                             Integer.toString(t),
-                                                            Integer.toString(1000),
+                                                            Integer.toString(s),
                                                             "demo_files/Classes/" + c + "/const-" + i + ".txt",
                                                             "demo_files/Classes/" + c + "/pref-" + i + ".txt"
                                                             );
@@ -98,9 +104,6 @@ public class MakeDemoFiles {
             else if (varToChange.equals("t")) { 
                 new ProcessBuilder("mkdir", "demo_files/TimeSlots").start(); //  make folder to hold Classes files, if it does not already exist. 
                 
-                int[] T = {1, 2, 3, 4, 5, 6, 7, 8, 9,
-                           10, 20, 30, 40, 50, 60, 70, 80, 90,
-                           100, 200, 300, 400, 500};
                 for (int t : T) { 
                     
                     new ProcessBuilder("mkdir", "demo_files/TimeSlots/" + t).start(); // make folder to hold files with c number of classes, if it does not already exist. 
@@ -108,10 +111,10 @@ public class MakeDemoFiles {
                     for (int i = 1; i <= 5; i ++ ) { 
                         ProcessBuilder pb = new ProcessBuilder("Perl", 
                                                             "make_random_input.pl",
-                                                            Integer.toString(r), // number of rooms must scale accordingly with classes. 
+                                                            Integer.toString(r), 
                                                             Integer.toString(c), 
                                                             Integer.toString(t),
-                                                            Integer.toString(),
+                                                            Integer.toString(s),
                                                             "demo_files/TimeSlots/" + c + "/const-" + i + ".txt",
                                                             "demo_files/TimeSlots/" + c + "/pref-" + i + ".txt"
                                                             );
