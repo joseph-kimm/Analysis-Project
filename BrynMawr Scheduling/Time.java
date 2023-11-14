@@ -35,7 +35,7 @@ public class Time {
         return startHour;
     }
 
-    public int startMinute() {
+    public int getStartMinute() {
         return startMinute;
     }
 

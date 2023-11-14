@@ -247,10 +247,6 @@ public class ScheduleMakerBryn {
             }
         }
 
-        for (int i = 0; i < edges.size(); i++) {
-            System.out.println(edges.get(i));
-        }
-
         // sort edges in increasing order of conflicts.
         edges.sort(null); 
     }

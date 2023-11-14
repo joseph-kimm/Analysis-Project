@@ -12,7 +12,7 @@ public class Room implements Comparable<Room> {
         this.roomSize = roomSize; 
     }
     
-    public String getRoomNumber() {
+    public String getRoomName() {
         return this.roomName;
     }
 

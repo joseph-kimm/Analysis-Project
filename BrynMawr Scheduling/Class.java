@@ -8,14 +8,15 @@ import java.util.ArrayList;
 public class Class implements Comparable<Class>{
     protected int index;
     protected String classNumber;
-    protected Professor professor; 
+    protected String professor; 
     protected int popularity; 
-    protected Time timeslot; 
-    protected int roomNumber;
+    protected int timeslot; 
+    protected String roomName;
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
+    protected boolean placed = false;
 
-    public Class (int index, String classNumber, Professor professor) { 
+    public Class (int index, String classNumber, String professor) { 
         this.index = index;
         this.classNumber = classNumber;
         this.professor = professor; 
@@ -63,7 +64,7 @@ public class Class implements Comparable<Class>{
         return this.classNumber;
     }
   
-    public Professor getProfessor() { 
+    public String getProfessor() { 
         return this.professor; 
     }
 
@@ -71,19 +72,19 @@ public class Class implements Comparable<Class>{
         return popularity; 
     }
      
-    public Time getTimeSlot() { 
+    public int getTimeSlot() { 
         return timeslot; 
     }
     
-    public int getRoomNumber() { 
-        return roomNumber; 
+    public String getRoomName() { 
+        return roomName; 
     }
 
-    public void setClassNumber(String newClassNumber) { 
-        this.classNumber = newClassNumber; 
-    } 
+    public boolean getPlaced() {
+        return placed;
+    }
 
-    public void setTeacher(Professor professor) { 
+    public void setTeacher(String professor) { 
         this.professor = professor;
     }
 
@@ -91,12 +92,16 @@ public class Class implements Comparable<Class>{
         this.popularity = newPopularity; 
     }
 
-    public void setTimeSlot(Time newTimeSlot) { 
+    public void setTimeSlot(int newTimeSlot) { 
         this.timeslot = newTimeSlot; 
     }
     
-    public void setRoomNumber(int newRoomNumber) { 
-        this.roomNumber = newRoomNumber;
+    public void setRoomName(String newRoomName) { 
+        this.roomName = newRoomName;
+    }
+
+    public void setPlaced(boolean newPlaced) {
+        this.placed = newPlaced;
     }
 
     /* 
@@ -112,6 +117,6 @@ public class Class implements Comparable<Class>{
     }
 
     public String toString() { 
-        return index + ") class: " + classNumber + ", teacher: "+ professor.getProfessorNumber() + ", popularity: " + popularity + "}"; 
+        return index + ") class: " + classNumber + ", teacher: "+ professor + ", popularity: " + popularity + "}"; 
     }
 }
