@@ -8,17 +8,21 @@ import java.util.List;
 
 public class Professor {
     protected String professorNumber;
-    protected ArrayList<Time> teachingTimes = new ArrayList<>();
+    protected ArrayList<Integer> teachingTimes = new ArrayList<>();
 
     public Professor(String professorN) {
         this.professorNumber = professorN;
     }
 
-    public List<Time> getTeachingTimes() {
+    public List<Integer> getTeachingTimes() {
         return teachingTimes;
     }
 
     public String getProfessorNumber() {
         return professorNumber;
+    }
+
+    public void addTeachingTime(int time_index) {
+        teachingTimes.add(time_index);
     }
 }
