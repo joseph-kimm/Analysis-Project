@@ -86,6 +86,8 @@ while (<SCHED>) {
 				}
 
 				if ($origCourseTeacher{$course} != $teacher) {
+					print $teacher;
+					print $origCourseTeacher{$course};
 					print "Course $course does not have the correct teacher.\n";
 					print "Line:$_\n";
 					exit 1;
