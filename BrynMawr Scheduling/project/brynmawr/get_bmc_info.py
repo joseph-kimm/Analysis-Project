@@ -113,7 +113,6 @@ def get_class_times(list_of_dicts):
     start = dict["Srt1 AM/PM"]
     end = dict["End 1 AMPM"]
     days = dict["Days 1"]
-    print(days)
     class_time = (start, end, days)
     campus = dict["Catalog"][0]
     if not class_time in times and campus == "B" and not start == "" \

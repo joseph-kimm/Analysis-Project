@@ -288,7 +288,7 @@ public class ScheduleMakerBryn {
         boolean matchingDay = false;
         for (String day : time1.getDays()) {
             if (time2.getDays().contains(day)) {
-                matchingDay = true;
+                matchingDay = true; 
             }
         }
         
@@ -327,6 +327,8 @@ public class ScheduleMakerBryn {
             Class classOne = e.getc1();
             Class classTwo = e.getc2(); 
 
+            boolean tConflict = false;
+
             // if there is an empty time slot & neither class has been placed.
             if (currentTimeSlot <= numTimeSlots && !classOne.getPlaced() && !classTwo.getPlaced()) {
 
@@ -336,29 +338,32 @@ public class ScheduleMakerBryn {
                 //check if professors of both classes do not conflict with this time
                 for (int time_index : professorOne.getTeachingTimes()) {
                     if (timeConflict[currentTimeSlot][time_index]) {
-                        continue;
+                        tConflict = true;
+                        break;
                     }
                 }
-
                 for (int time_index : professorTwo.getTeachingTimes()) {
                     if (timeConflict[currentTimeSlot][time_index]) {
-                        continue;
+                        tConflict = true;
+                        break;
                     }
                 }
 
-                //add both classes to that time slot: 
-                timeSlotClasses[currentTimeSlot].add(classOne); 
-                classOne.setTimeSlot(currentTimeSlot);
-                classOne.setPlaced(true);
-                professorOne.addTeachingTime(currentTimeSlot);
-                
-                timeSlotClasses[currentTimeSlot].add(classTwo); 
-                classTwo.setTimeSlot(currentTimeSlot);
-                classTwo.setPlaced(true);
-                professorTwo.addTeachingTime(currentTimeSlot);
-
-                //incrementing current timeslot
-                currentTimeSlot ++;
+                //add both classes to that time slot if no time conflict: 
+                if (!tConflict) {
+                    timeSlotClasses[currentTimeSlot].add(classOne); 
+                    classOne.setTimeSlot(currentTimeSlot);
+                    classOne.setPlaced(true);
+                    professorOne.addTeachingTime(currentTimeSlot);
+                    
+                    timeSlotClasses[currentTimeSlot].add(classTwo); 
+                    classTwo.setTimeSlot(currentTimeSlot);
+                    classTwo.setPlaced(true);
+                    professorTwo.addTeachingTime(currentTimeSlot);
+                    
+                    //incrementing current timeslot
+                    currentTimeSlot ++;
+                }     
             }
 
             // else if 1 IS placed and 2 is NOT: 
@@ -369,11 +374,11 @@ public class ScheduleMakerBryn {
                 // checking that professor for classtwo does not cnflict with class1 timeslot
                 for (int time_index : professorTwo.getTeachingTimes()) {
                     if (timeConflict[classOne.getTimeSlot()][time_index]) {
-                        continue;
+                        tConflict = true;
                     }
                 }
  
-                if (timeSlotClasses[classOne.getTimeSlot()].size() < numRooms) {
+                if (!tConflict && timeSlotClasses[classOne.getTimeSlot()].size() < numRooms) {
                     timeSlotClasses[classOne.getTimeSlot()].add(classTwo); 
                     classTwo.setTimeSlot(classOne.getTimeSlot());
                     classTwo.setPlaced(true);
@@ -389,11 +394,11 @@ public class ScheduleMakerBryn {
                 // checking that professor for classtwo does not cnflict with class1 timeslot
                 for (int time_index : professorOne.getTeachingTimes()) {
                     if (timeConflict[classTwo.getTimeSlot()][time_index]) {
-                        continue;
+                        tConflict = true;
                     }
                 }
  
-                if (timeSlotClasses[classTwo.getTimeSlot()].size() < numRooms) {
+                if (!tConflict && timeSlotClasses[classTwo.getTimeSlot()].size() < numRooms) {
                     timeSlotClasses[classTwo.getTimeSlot()].add(classOne); 
                     classOne.setTimeSlot(classTwo.getTimeSlot());
                     classOne.setPlaced(true);
@@ -430,7 +435,7 @@ public class ScheduleMakerBryn {
 
                     // if student is not already in this time slot
                     if (!studentsInTimeSlot.contains(student)) {
-
+                        // need to check if student's current timeslots overlap??
                         // add student to the time slot and class
                         classInSlot.addEnrolledStudent(student);
                         studentsInTimeSlot.add(student);
