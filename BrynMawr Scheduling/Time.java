@@ -51,8 +51,4 @@ public class Time {
         return days;
     }
 
-    @Override
-    public String toString() {
-        return startHour + ":" + startMinute + "-" + endHour + ":" + endMinute + " " + days;
-    }
 }

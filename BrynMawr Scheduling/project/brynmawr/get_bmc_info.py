@@ -124,35 +124,35 @@ def get_class_times(list_of_dicts):
 # Currently catches some "labs" that aren't actually labs for those courses.
 # Course '333' seems especially to be a strange corner case.
 # The issue may also be that this doesn't take sections into account in matching.
-#def get_lab_courses(list_of_dicts):
-#  lab_courses = {}
-#  student_courses = get_student_prefs_enrolled(list_of_dicts)
-#  courses = get_courses(list_of_dicts)
-#  for dict in list_of_dicts:
-#    course = dict["Course ID"]
-#    dept = dict["Subject"]
-#    level = dict["Level"]
-#    student = dict["Student"]
-#    units = dict["Unit Taken"]
-#    campus = dict["College"]
-#    if units == "0" and campus == "H":  # we think this is a lab class
-#      all_courses = student_courses[student]
-#      for enrolled_course in all_courses:
-#        if not enrolled_course == course and enrolled_course in courses:
-#          course_dict = courses[enrolled_course]
-#          enrolled_dept = course_dict["Subject"]
-#          enrolled_level = course_dict["Level"]
-#          enrolled_units = course_dict["Unit Taken"]
-#          enrolled_campus = course_dict["College"]
-#          if enrolled_units > 0 and enrolled_dept == dept and enrolled_level == level \
-#              and enrolled_campus == campus:
-#            print enrolled_course + " " + course
-#            if enrolled_course in lab_courses:
-#              if not course in lab_courses[enrolled_course]:
-#                lab_courses[enrolled_course].append(course)
-#            else:
-#              lab_courses[enrolled_course] = [course]
-#  return lab_courses
+def get_lab_courses(list_of_dicts):
+  lab_courses = {}
+  student_courses = get_student_prefs_enrolled(list_of_dicts)
+  courses = get_courses(list_of_dicts)
+  for dict in list_of_dicts:
+    course = dict["Course ID"]
+    dept = dict["Subject"]
+    level = dict["Level"]
+    student = dict["Student"]
+    units = dict["Unit Taken"]
+    campus = dict["College"]
+    if units == "0" and campus == "H":  # we think this is a lab class
+      all_courses = student_courses[student]
+      for enrolled_course in all_courses:
+        if not enrolled_course == course and enrolled_course in courses:
+          course_dict = courses[enrolled_course]
+          enrolled_dept = course_dict["Subject"]
+          enrolled_level = course_dict["Level"]
+          enrolled_units = course_dict["Unit Taken"]
+          enrolled_campus = course_dict["College"]
+          if enrolled_units > 0 and enrolled_dept == dept and enrolled_level == level \
+              and enrolled_campus == campus:
+            print (enrolled_course + " " + course)
+            if enrolled_course in lab_courses:
+              if not course in lab_courses[enrolled_course]:
+                lab_courses[enrolled_course].append(course)
+            else:
+              lab_courses[enrolled_course] = [course]
+  return lab_courses
 
 def write_building_to_file(list_of_dicts, filename):
     building = get_building(list_of_dicts)

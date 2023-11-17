@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-
-
+import java.util.Hashtable;
 import java.io.FileWriter;
 
 public class ScheduleMakerBryn {
@@ -40,11 +39,11 @@ public class ScheduleMakerBryn {
             return;
         }
 
-        String constraint = args[0];
+        String constraint = args[0]; // store constraint and preference files. 
         String studentPref = args[1];
-        // idea being that each schedule maker is given an input file, which is processed in its constructor
+
         ScheduleMakerBryn maker = new ScheduleMakerBryn();
-        maker.readingInput(constraint, studentPref);
+        maker.readingInput(constraint, studentPref); // read in the input from the constrainta and preference files to instance variables. 
         maker.createClassPairs();
         maker.createTimeMatrix();
         maker.makeSchedule();
@@ -56,21 +55,22 @@ public class ScheduleMakerBryn {
     }
     
     /* 
-     * Given a filename, will initialize class variables. 
-     * @param fileName the file to read
+     * Given a filename, will initialize class instance variables. 
+     * @param constraintsFile The file containing information about constraints
+     * @param studentFile The file containing information about student preferences. 
      */
     public void readingInput(String constraintsFile, String studentFile) { 
 
         // Read values from the constraints file:  
         try (BufferedReader br = new BufferedReader(new FileReader(constraintsFile))) { 
 
-            // taking the number of TimeSlots
+            // store number of TimeSlots
             numTimeSlots = Integer.parseInt(br.readLine().split("\\s+")[2]); 
 
-            // dummy time slot for indexing
+            // add dummy time slot for indexing
             timeSlots.add(new Time(0, 0, 0, 0, 0, Collections.<String>emptySet()));
 
-            // initializing days of the week
+            // initialize days of the week
             char[] daysOfTheWeek = {'M', 'T', 'W', 'H', 'F'};
             HashMap<Character, Integer> findingDays = new HashMap<>();
             findingDays.put('M', 0);
@@ -79,8 +79,8 @@ public class ScheduleMakerBryn {
             findingDays.put('H', 3);
             findingDays.put('F', 4);
 
-            //taking information about each time slot
-            for (int i = 1; i <= numTimeSlots; i ++) {
+            // taking information about each time slot
+            for (int i = 1; i <= numTimeSlots; i ++) { // for each time slot: 
                 String[] timeslot = br.readLine().split("\\s+"); 
 
                 // get start time
@@ -409,14 +409,14 @@ public class ScheduleMakerBryn {
         // else neither class has been placed but there are no empty time slots. Therefore, do nothing. 
         }
 
+        Hashtable<String, ArrayList<Integer>> studentsTimeSlots = new Hashtable<String, ArrayList<Integer>>(); // associates student string with the list of classes they are interested in. 
+
         // once we have class schedule set, start adding students to classes: O(s)
         for (int t = 1; t <= this.numTimeSlots; t++ ) {
 
             // sort each of classes in the time slots by popularity. O(c log(c)), because Java uses merge/quicksort. 
             timeSlotClasses[t].sort(null); 
 
-            // students taking a class in specific time slot
-            HashSet<String> studentsInTimeSlot = new HashSet<>(); 
 
             // each class in time slot from most popular class
             for (int r = 0; r < timeSlotClasses[t].size(); r++) {
@@ -433,13 +433,31 @@ public class ScheduleMakerBryn {
                 // for each student who is interested in the class
                 for (String student: classInSlot.interestedStudents) {
 
-                    // if student is not already in this time slot
-                    if (!studentsInTimeSlot.contains(student)) {
-                        // need to check if student's current timeslots overlap??
+                    // if student has not been placed into any class, room, or timeslot yet. Therefore, no possible time conflict: 
+                    if (!studentsTimeSlots.contains(student)) { 
+                        studentsTimeSlots.put(student, new ArrayList<Integer>(numTimeSlots)); // start with initial capacity of the number of timeslots, so the arraylist never needs to double in underlying array size. 
                         // add student to the time slot and class
-                        classInSlot.addEnrolledStudent(student);
-                        studentsInTimeSlot.add(student);
-
+                        studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
+                        classInSlot.addEnrolledStudent(student);  // enroll the student into the class. 
+                        
+                    }
+                    else { // student has already been placed into a timeslot. 
+                        //for every time slot the student is already enrolled in: 
+                        boolean conflicts = false; 
+                        for (int enrolledTimeSlot : studentsTimeSlots.get(student))  {
+                            if (this.timeConflict[enrolledTimeSlot][t]) { // if the time that it's already in conflicts with this time slot:
+                                conflicts = true;  // then the student can't be placed into this time slot, because it is already busy during this time slot. 
+                                break;
+                            }
+                        }
+                        if (!conflicts) { // if student doesn't have any other conflicts during this timeSlot. 
+                            // add student to the time slot and class
+                            studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
+                            classInSlot.addEnrolledStudent(student);  // enroll the student into the class. 
+                        }
+                        
+                        
+    
                         // increase the pref value
                         studentEnrolledValue++;
                     }
