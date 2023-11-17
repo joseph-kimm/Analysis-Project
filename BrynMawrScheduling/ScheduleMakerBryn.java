@@ -34,8 +34,8 @@ public class ScheduleMakerBryn {
 
     public static void main(String[] args) { 
 
-        if (args.length != 2) {
-            System.out.println("Usage: java <constraints.txt> <student_preferences.txt>");
+        if (args.length != 3) {
+            System.out.println("Usage: java <constraints.txt> <student_preferences.txt> <schedule.txt>");
             return;
         }
 
@@ -47,7 +47,7 @@ public class ScheduleMakerBryn {
         maker.createClassPairs();
         maker.createTimeMatrix();
         maker.makeSchedule();
-        maker.writeSchedule();
+        maker.writeSchedule(args[2]);
 
         System.out.println("Student Preference Value: " + studentEnrolledValue);
         System.out.println("Best Case Student Value: " + bestCaseValue);
@@ -485,11 +485,11 @@ public class ScheduleMakerBryn {
     /*
      * write schedule for in schedule.txt
      */
-    public void writeSchedule() {
+    public void writeSchedule(String fileName) {
     
             try {
                 // Create a FileWriter with the given file name
-                FileWriter fileWriter = new FileWriter("schedule.txt");
+                FileWriter fileWriter = new FileWriter(fileName);
         
                 // Write the header to the file
                 fileWriter.write("Course\tRoom\tTeacher\tTime\tStudents\n");
