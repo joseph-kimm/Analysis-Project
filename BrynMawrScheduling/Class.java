@@ -1,9 +1,10 @@
 /**
  * Description:     Stores the data for a single class available for a schedule, as well as a comparator based on popularity (interested students).
- * Last Modified:   Nov 12, 2023
+ * Last Modified:   Nov 19, 2023
  */
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Class implements Comparable<Class>{
     protected int index;
@@ -12,6 +13,7 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeslot; 
     protected String roomName;
+    protected HashSet<Room> possibleRooms = new HashSet<>();
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
     protected boolean placed = false;
@@ -84,6 +86,10 @@ public class Class implements Comparable<Class>{
         return placed;
     }
 
+    public HashSet<Room> getPossibleRooms() {
+        return possibleRooms;
+    }
+
     public void setTeacher(String professor) { 
         this.professor = professor;
     }
@@ -103,6 +109,16 @@ public class Class implements Comparable<Class>{
     public void setPlaced(boolean newPlaced) {
         this.placed = newPlaced;
     }
+
+    public void setPossibleRoom(Room someRoom) {
+        this.possibleRooms.add(someRoom);
+    }
+    
+    /* Check if a class can be placed in this room */
+    public boolean safeRoom(Room someRoom) {
+        return this.possibleRooms.contains(someRoom);
+    }
+
 
     /* 
      * compare to method. If positive, it means this is larger than that. 

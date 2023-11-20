@@ -6,6 +6,7 @@
 public class Room implements Comparable<Room> {
     protected String roomName;
     protected int roomSize;
+    protected int index;
 
     public Room (String roomName, int roomSize) { 
         this.roomName = roomName;
@@ -18,6 +19,18 @@ public class Room implements Comparable<Room> {
 
     public int getRoomSize() {
         return this.roomSize;
+    }
+
+    public void setIndex(int idx) {
+        this.index = idx;
+    }
+    
+    public int getIndex() {
+        return this.index;
+    }
+
+    public String toString() {
+        return this.roomName;
     }
 
     public int compareTo(Room thatRoom) { 
