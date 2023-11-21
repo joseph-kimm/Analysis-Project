@@ -91,7 +91,7 @@ public class ScheduleMakerTime {
                 int startHour = Integer.parseInt(startTime[0]);
                 int startMinute = Integer.parseInt(startTime[1]);
 
-                if (startTimeM.equals("PM")) {
+                if (startTimeM.equals("PM") && startHour != 12) {
                     startHour += 12;
                 }
 
@@ -102,7 +102,7 @@ public class ScheduleMakerTime {
                 int endHour = Integer.parseInt(endTime[0]);
                 int endMinute = Integer.parseInt(endTime[1]);
 
-                if (endTimeM.equals("PM")) {
+                if (endTimeM.equals("PM") && endHour != 12) {
                     endHour += 12;
                 }
 
@@ -273,6 +273,7 @@ public class ScheduleMakerTime {
 
                     if (t1 == t2) {
                         this.timeConflict[t1][t2] = true;
+                        break;
                     }
 
                     Time time1 = timeSlots.get(t1);
@@ -293,6 +294,18 @@ public class ScheduleMakerTime {
             }
         }
 
+        for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
+                for (int t2 = 1; t2 <= this.numTimeSlots; t2++) {
+                    if (timeConflict[t1][t2]) {
+                        System.out.print("Y ");
+                    }
+                    else {
+                        System.out.print("N ");
+                    }
+                }
+                System.out.println();
+            
+        }
     }
 
     public static boolean checkingTimeConflict(Time time1, Time time2) {
@@ -330,6 +343,7 @@ public class ScheduleMakerTime {
 
         // current time slot
         int currentTimeSlot = 1;
+        int tConflictCount = 0;
 
         // for each edge, in order of increasing conflicts. 
         for (Edge e : edges) {
@@ -417,8 +431,14 @@ public class ScheduleMakerTime {
                 }
             }
 
+            if (tConflict) {
+                tConflictCount++;
+            }
+
         // else neither class has been placed but there are no empty time slots. Therefore, do nothing. 
         }
+
+        System.out.println(tConflictCount);
 
         Hashtable<String, ArrayList<Integer>> studentsTimeSlots = new Hashtable<String, ArrayList<Integer>>(); // associates student string with the list of classes they are interested in. 
 
@@ -441,6 +461,7 @@ public class ScheduleMakerTime {
 
                 //get the room size
                 int limit = rooms.get(r).getRoomSize();
+                classInSlot.setRoomSize(limit);
 
                 // for each student who is interested in the class
                 for (String student: classInSlot.interestedStudents) {
@@ -486,7 +507,7 @@ public class ScheduleMakerTime {
             }
         }
 
-        //System.out.println(sConflictsCount);
+        System.out.println(sConflictsCount);
     }
 
     public void printSchedule() { 
@@ -525,7 +546,7 @@ public class ScheduleMakerTime {
                         continue;
                     }
 
-                    String formatText = String.format("%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+                    String formatText = String.format("%s\t%d / %d / %d\t%s\t%s\t%s\t", c.getClassNumber(), c.getEnrolledStudent().size(), c.getRoomSize(), c.getInterestedStudents().size(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
                     fileWriter.write(formatText);
                     for (String student : c.getEnrolledStudent()) { 
                         fileWriter.write(student + " ");

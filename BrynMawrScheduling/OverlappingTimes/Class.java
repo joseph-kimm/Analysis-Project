@@ -12,6 +12,7 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeslot; 
     protected String roomName;
+    protected int roomSize;
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
     protected boolean placed = false;
@@ -55,6 +56,10 @@ public class Class implements Comparable<Class>{
         return this.enrolledStudents;
     }
 
+    public ArrayList<String> getInterestedStudents() {
+        return this.interestedStudents;
+    }
+
     public int getIndex() {
         return index;
     }
@@ -84,6 +89,10 @@ public class Class implements Comparable<Class>{
         return placed;
     }
 
+    public int getRoomSize() {
+        return roomSize;
+    }
+
     public void setTeacher(String professor) { 
         this.professor = professor;
     }
@@ -102,6 +111,10 @@ public class Class implements Comparable<Class>{
 
     public void setPlaced(boolean newPlaced) {
         this.placed = newPlaced;
+    }
+
+    public void setRoomSize(int newRoomSize) {
+        this.roomSize = newRoomSize;
     }
 
     /* 
