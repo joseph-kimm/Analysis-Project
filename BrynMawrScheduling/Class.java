@@ -12,6 +12,7 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeslot; 
     protected String roomName;
+    protected int numUnenrolledStudents; 
     protected HashSet<Room> possibleRooms = new HashSet<>();
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
@@ -21,6 +22,13 @@ public class Class implements Comparable<Class>{
         this.index = index;
         this.classNumber = classNumber;
         this.professor = professor; 
+    }
+
+    public Class (int index, String classNumber, String professor, ArrayList<String> interestedStudents) { 
+        this.index = index;
+        this.classNumber = classNumber;
+        this.professor = professor; 
+        this.interestedStudents = interestedStudents;
     }
 
     /*
@@ -36,6 +44,13 @@ public class Class implements Comparable<Class>{
      */
     public void incrementPopularity() { 
         this.popularity++; 
+    }
+
+    /*
+     * returns the list of students interested in the class
+     */
+    public ArrayList<String> getInterestedStudents() {
+        return interestedStudents;
     }
 
     /*
@@ -55,6 +70,15 @@ public class Class implements Comparable<Class>{
     public ArrayList<String> getEnrolledStudent() {
         return this.enrolledStudents;
     }
+
+    public void setNumUnenrolledStudents(int newNumUnenrolledStudents) { 
+        this.numUnenrolledStudents = newNumUnenrolledStudents; 
+    }
+
+    public int getNumUnenrolledStudents() { 
+        return this.numUnenrolledStudents; 
+    }
+
 
     public int getIndex() {
         return index;
@@ -128,7 +152,8 @@ public class Class implements Comparable<Class>{
         // if this returns a positive number, it means that thatClass is more popular than this class. 
         // This makes a little less sense than I'd typically do, but it means that when we call .sort() on the arraylist, 
         // it sorts in descending order, which is very handy. - R. 
-        return thatClass.getPopularity() - this.popularity; 
+        // if the two have already been placed and have some unenrolled students, it instead sorts based on the difference in the number of unenrolled students. 
+        return this.numUnenrolledStudents == 0 && thatClass.getNumUnenrolledStudents() == 0 ? thatClass.getPopularity() - this.popularity : thatClass.getNumUnenrolledStudents() - this.numUnenrolledStudents; 
     }
 
     public String toString() { 

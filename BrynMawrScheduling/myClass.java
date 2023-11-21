@@ -26,7 +26,7 @@ public class Class implements Comparable<Class>{
         this.professor = professor; 
     }
 
-     public Class (int index, String classNumber, String professor, ArrayList<String> interestedStudents) { 
+    public Class (int index, String classNumber, String professor, ArrayList<String> interestedStudents) { 
         this.index = index;
         this.classNumber = classNumber;
         this.professor = professor; 
