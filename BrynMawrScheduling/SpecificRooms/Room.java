@@ -1,5 +1,6 @@
 /**
  * Description:     Stores the data for a single room, as well as a comparator based on size.
+ * Last Modified:   Nov 12, 2023
  */
 
 public class Room implements Comparable<Room> {
