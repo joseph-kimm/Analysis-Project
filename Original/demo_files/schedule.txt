@@ -1,1 +1,0 @@
-Course	Room	Teacher	Time	Students
