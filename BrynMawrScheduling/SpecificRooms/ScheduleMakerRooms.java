@@ -191,7 +191,6 @@ public class ScheduleMakerRooms {
                     }
                 }
             }
-            
         // error in case file does not open
         } catch (FileNotFoundException fnf) { 
             System.err.println("Could not open the file" + fnf); 

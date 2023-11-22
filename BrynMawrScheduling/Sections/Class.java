@@ -1,12 +1,9 @@
-public class myClass {
-    
-}
 /**
  * Description:     Stores the data for a single class available for a schedule, as well as a comparator based on popularity (interested students).
- * Last Modified:   Nov 12, 2023
  */
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Class implements Comparable<Class>{
     protected int index;
@@ -15,7 +12,8 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeslot; 
     protected String roomName;
-    protected int numUnenrolledStudents;
+    protected int numUnenrolledStudents; 
+    protected HashSet<Room> possibleRooms = new HashSet<>();
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
     protected boolean placed = false;
@@ -26,11 +24,12 @@ public class Class implements Comparable<Class>{
         this.professor = professor; 
     }
 
-    public Class (int index, String classNumber, String professor, ArrayList<String> interestedStudents) { 
+    public Class (int index, String classNumber, String professor, ArrayList<String> interestedStudents, HashSet<Room> possibleRooms ) { 
         this.index = index;
         this.classNumber = classNumber;
         this.professor = professor; 
         this.interestedStudents = interestedStudents;
+        this.possibleRooms = possibleRooms; 
     }
 
     /*
@@ -56,7 +55,7 @@ public class Class implements Comparable<Class>{
     }
 
     /*
-     * add a student who is interested in the course to the list of interested students, and increment popularity accordingly. 
+     * add students who are interested in the course
      */
     public void addInterestedStudent(String student) {
         this.interestedStudents.add(student);
@@ -73,6 +72,10 @@ public class Class implements Comparable<Class>{
         return this.enrolledStudents;
     }
 
+    public boolean containsStudent( String student) { 
+        return this.enrolledStudents.contains(student); 
+    }
+
     public void setNumUnenrolledStudents(int newNumUnenrolledStudents) { 
         this.numUnenrolledStudents = newNumUnenrolledStudents; 
     }
@@ -80,6 +83,7 @@ public class Class implements Comparable<Class>{
     public int getNumUnenrolledStudents() { 
         return this.numUnenrolledStudents; 
     }
+
 
     public int getIndex() {
         return index;
@@ -95,7 +99,7 @@ public class Class implements Comparable<Class>{
     }
 
     public int getPopularity() { 
-        return interestedStudents.size();  // return the number of students in the list of interested students. 
+        return popularity; 
     }
      
     public int getTimeSlot() { 
@@ -108,6 +112,10 @@ public class Class implements Comparable<Class>{
 
     public boolean getPlaced() {
         return placed;
+    }
+
+    public HashSet<Room> getPossibleRooms() {
+        return possibleRooms;
     }
 
     public void setTeacher(String professor) { 
@@ -129,6 +137,16 @@ public class Class implements Comparable<Class>{
     public void setPlaced(boolean newPlaced) {
         this.placed = newPlaced;
     }
+
+    public void setPossibleRoom(Room someRoom) {
+        this.possibleRooms.add(someRoom);
+    }
+    
+    /* Check if a class can be placed in this room */
+    public boolean safeRoom(Room someRoom) {
+        return this.possibleRooms.contains(someRoom);
+    }
+
 
     /* 
      * compare to method. If positive, it means this is larger than that. 
