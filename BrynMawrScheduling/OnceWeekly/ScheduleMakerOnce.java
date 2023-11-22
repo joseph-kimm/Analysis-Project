@@ -1,7 +1,6 @@
 /**
  * Description:     Modification of ScheduleMaker for Bryn Mawr registrar data using overlapping timeslots.
  * Usage:           java ScheduleMakerOnce <constraints.txt> <student_preferences.txt> <schedule.txt>
- * Last Modified:   Nov 18, 2023
  */
 
 import java.io.BufferedReader; 
@@ -57,7 +56,7 @@ public class ScheduleMakerOnce {
         // System.out.println("Student Preference Value: " + studentEnrolledValue);
         // System.out.println("Best Case Student Value: " + bestCaseValue);
        // System.out.printf("Fit: %2.2f%%%n", studentEnrolledValue/bestCaseValue * 100);
-        System.out.printf("%2.2f%%%n", studentEnrolledValue/bestCaseValue * 100);
+        System.out.printf("%2.2f%n", studentEnrolledValue/bestCaseValue * 100);
     }
     
     /* 
@@ -376,6 +375,8 @@ public class ScheduleMakerOnce {
                 }     
             }
 
+            else if (currentTimeSlot <= numTimeSlots) {continue;}
+
             // else if 1 IS placed and 2 is NOT: 
             else if (classOne.getPlaced() && !classTwo.getPlaced()) {
 
@@ -450,6 +451,8 @@ public class ScheduleMakerOnce {
                         studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
                         classInSlot.addEnrolledStudent(student);  // enroll the student into the class. 
                         studentEnrolledValue++;
+                        // decrease room limit by 1
+                        limit--;
                         
                     }
                     else { // student has already been placed into a timeslot. 
@@ -466,11 +469,11 @@ public class ScheduleMakerOnce {
                             studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
                             classInSlot.addEnrolledStudent(student);  // enroll the student into the class.                   
                             studentEnrolledValue++; // increase the pref value
+                            // decrease room limit by 1
+                            limit--;
                         }
                                        
                     }
-                    // decrease room limit by 1
-                    limit--;
 
                     // if room is full, do not put any more students
                     if (limit == 0) {break;}
@@ -508,7 +511,7 @@ public class ScheduleMakerOnce {
                 for(int i = 1; i < classNumbers.size(); i++) { 
                     String classNumber = classNumbers.get(i);
                     Class c = classes.get(classNumber); 
-                    String formatText = String.format("%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+                    String formatText = String.format("%s\t%d / %d\t%s\t%s\t%s\t", c.getClassNumber(), c.getNumEnrolledStudents(), c.getNumInterestedStudents(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
                     fileWriter.write(formatText);
                     for (String student : c.getEnrolledStudent()) { 
                         fileWriter.write(student + " ");
