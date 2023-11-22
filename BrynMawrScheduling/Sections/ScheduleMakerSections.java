@@ -409,6 +409,7 @@ public class ScheduleMakerSections {
 
                     for (Room r: classOne.getPossibleRooms()) {
                         classOne.setRoomName(r.getRoomName());
+                        classOne.setRoomSize(r.getRoomSize());
                         roomFilled[currentTimeSlot][r.getIndex()] = true;
                         classOne.setPlaced(true);
                         professorOne.addTeachingTime(currentTimeSlot);
@@ -420,21 +421,13 @@ public class ScheduleMakerSections {
                             timeSlotClasses[currentTimeSlot].add(classTwo); 
                             classTwo.setTimeSlot(currentTimeSlot);
                             classTwo.setRoomName(r.getRoomName());
+                            classTwo.setRoomSize(r.getRoomSize());
                             roomFilled[currentTimeSlot][r.getIndex()] = true;
                             classTwo.setPlaced(true);
                             professorTwo.addTeachingTime(currentTimeSlot);
                             break;
                         }
                     }
-                    
-                    /*classOne.setPlaced(true);
-                    professorOne.addTeachingTime(currentTimeSlot);
-                    
-                    timeSlotClasses[currentTimeSlot].add(classTwo); 
-                    classTwo.setTimeSlot(currentTimeSlot);
-                    classTwo.setPlaced(true);
-                    professorTwo.addTeachingTime(currentTimeSlot);
-                    */
                     
                     //incrementing current timeslot
                     currentTimeSlot ++;
@@ -459,6 +452,7 @@ public class ScheduleMakerSections {
                      for (Room r: classTwo.getPossibleRooms()) {
                         if (!roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()]) { // if no class in room
                             classTwo.setRoomName(r.getRoomName()); // place in room
+                            classTwo.setRoomSize(r.getRoomSize());
                             roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()] = true;
                             timeSlotClasses[timeslot].add(classTwo); 
                             classTwo.setTimeSlot(timeslot);
@@ -492,11 +486,13 @@ public class ScheduleMakerSections {
                     for (Room r: classOne.getPossibleRooms()) {
                         if (!roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()]) { // if no class in room
                             classOne.setRoomName(r.getRoomName()); // place in room
+                            classOne.setRoomSize(r.getRoomSize());
                             roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()] = true;
                             timeSlotClasses[classTwo.getTimeSlot()].add(classOne); 
                             classOne.setTimeSlot(classTwo.getTimeSlot());
                             classOne.setPlaced(true);
                             professorOne.addTeachingTime(classOne.getTimeSlot());
+                            break; 
                         }
                     }
                     /* 
@@ -531,7 +527,7 @@ public class ScheduleMakerSections {
                 //classInSlot.setRoomName(rooms.get(r).getRoomName());
 
                 //get the room size
-                int limit = roomList.get(r).getRoomSize();
+                int limit = classInSlot.getRoomSize();
 
                 // for each student who is interested in the class
                 for (String student : classInSlot.interestedStudents) {
@@ -566,7 +562,6 @@ public class ScheduleMakerSections {
                         }
                     }
                 }
-    
                 classInSlot.setNumUnenrolledStudents(classInSlot.getPopularity() - classInSlot.getEnrolledStudent().size()); // store how many students were not able to be enrolled in the class. 
                 toSplit.add(classInSlot);  // the class has more interested students in there than the room can accomodate, therefore, it could benefit from being split into two sections. 
             } // end for loop going through each room of the time slot. 
@@ -603,6 +598,7 @@ public class ScheduleMakerSections {
                             for (Room r: newSection.getPossibleRooms()) { // for each room that newSection can be placed into: 
                                 if (!roomFilled[timeSlot][rooms.get(r.getRoomName()).getIndex()]) { // if no class is currently in the room
                                     newSection.setRoomName(r.getRoomName()); // place in room
+                                    newSection.setRoomSize(r.getRoomSize());
                                     roomFilled[timeSlot][rooms.get(r.getRoomName()).getIndex()] = true;
                                     timeSlotClasses[timeSlot].add(newSection); 
                                     newSection.setTimeSlot(timeSlot);
@@ -707,7 +703,7 @@ public class ScheduleMakerSections {
                 for (int i = 1; i < classNumbers.size(); i++) { 
                     String classNumber = classNumbers.get(i);
                     Class c = classes.get(classNumber); 
-                    String formatText = String.format("%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+                    String formatText = String.format("%s\t%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getEnrolledStudent().size() + " / " + c.getInterestedStudents().size() + " / " + c.getRoomSize(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
                     fileWriter.write(formatText);
                     for (String student : c.getEnrolledStudent()) { 
                         fileWriter.write(student + " ");
