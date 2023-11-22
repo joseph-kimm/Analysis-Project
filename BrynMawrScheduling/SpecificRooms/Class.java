@@ -13,6 +13,8 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeslot; 
     protected String roomName;
+    protected Room assignedRoom;
+    protected int roomCap;
     protected HashSet<Room> possibleRooms = new HashSet<>();
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
@@ -82,12 +84,28 @@ public class Class implements Comparable<Class>{
         return roomName; 
     }
 
+    public Room getAssignedRoom() {
+        return assignedRoom;
+    }
+
+    public int getRoomCap() {
+        return roomCap;
+    }
+
     public boolean getPlaced() {
         return placed;
     }
 
     public HashSet<Room> getPossibleRooms() {
         return possibleRooms;
+    }
+
+    public int getNumEnrolledStudents() {
+        return this.enrolledStudents.size();
+    }
+
+    public int getNumInterestedStudents() {
+        return this.interestedStudents.size();
     }
 
     public void setTeacher(String professor) { 
@@ -104,6 +122,14 @@ public class Class implements Comparable<Class>{
     
     public void setRoomName(String newRoomName) { 
         this.roomName = newRoomName;
+    }
+
+    public void setAssignedRoom(Room assignment) {
+        this.assignedRoom = assignment;
+    }
+
+    public void setRoomCap(int cap) {
+        this.roomCap = cap;
     }
 
     public void setPlaced(boolean newPlaced) {

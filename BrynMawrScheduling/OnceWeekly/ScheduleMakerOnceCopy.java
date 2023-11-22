@@ -1,3 +1,8 @@
+/**
+ * Description:     Modification of ScheduleMaker for Bryn Mawr registrar data using overlapping timeslots.
+ * Usage:           java ScheduleMakerOnce <constraints.txt> <student_preferences.txt> <schedule.txt>
+ */
+
 import java.io.BufferedReader; 
 import java.io.FileNotFoundException;
 import java.io.FileReader; 
@@ -9,7 +14,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.io.FileWriter;
 
-public class ScheduleMakerTime {
+public class ScheduleMakerOnce {
     private static float bestCaseValue = 0;
     private static float studentEnrolledValue = 0;
     
@@ -33,26 +38,25 @@ public class ScheduleMakerTime {
     private long nanoSecondsElapsed; 
 
     public static void main(String[] args) { 
-
-        if (args.length != 4) {
-            System.out.println("Usage: java <o(overlap) / n(non-overlap)> <constraints.txt> <student_preferences.txt> <schedule.txt>");
+        if (args.length != 3) {
+            System.out.println("Usage: java ScheduleMakerOnce <constraints.txt> <student_preferences.txt> <schedule.txt>");
             return;
         }
 
-        String timeChoice = args[0];
-        String constraint = args[1]; // store constraint and preference files. 
-        String studentPref = args[2];
+        String constraint = args[0]; // store constraint and preference files. 
+        String studentPref = args[1];
 
-        ScheduleMakerTime maker = new ScheduleMakerTime();
+        ScheduleMakerOnce maker = new ScheduleMakerOnce();
         maker.readingInput(constraint, studentPref); // read in the input from the constrainta and preference files to instance variables. 
         maker.createClassPairs();
-        maker.createTimeMatrix(timeChoice);
+        maker.createTimeMatrix();
         maker.makeSchedule();
-        maker.writeSchedule(args[3]);
+        maker.writeSchedule(args[2]);
 
-        System.out.println("Student Preference Value: " + studentEnrolledValue);
-        System.out.println("Best Case Student Value: " + bestCaseValue);
-        System.out.printf("Fit: %2.2f%%%n", studentEnrolledValue/bestCaseValue * 100);
+        // System.out.println("Student Preference Value: " + studentEnrolledValue);
+        // System.out.println("Best Case Student Value: " + bestCaseValue);
+       // System.out.printf("Fit: %2.2f%%%n", studentEnrolledValue/bestCaseValue * 100);
+        System.out.printf("%2.2f%n", studentEnrolledValue/bestCaseValue * 100);
     }
     
     /* 
@@ -78,7 +82,7 @@ public class ScheduleMakerTime {
             findingDays.put('T', 1);
             findingDays.put('W', 2);
             findingDays.put('H', 3);
-            findingDays.put('F', 4);
+            findingDays.put('F', 4); 
 
             // taking information about each time slot
             for (int i = 1; i <= numTimeSlots; i ++) { // for each time slot: 
@@ -111,26 +115,28 @@ public class ScheduleMakerTime {
 
                 // replacing TH to H
                 daysString = daysString.replaceAll("TH", "H");
+                daysString = String.valueOf(daysString.charAt(0));
                 HashSet<String> days = new HashSet<>();
+                days.add(daysString);
 
-                // if its a range of days
-                if (daysString.contains("-")) {
-                    int index = daysString.indexOf('-');
+                // // if its a range of days
+                // if (daysString.contains("-")) {
+                //     int index = daysString.indexOf('-');
 
-                    int start = findingDays.get(daysString.charAt(index-1));
-                    int end = findingDays.get(daysString.charAt(index+1));
+                //     int start = findingDays.get(daysString.charAt(index-1));
+                //     int end = findingDays.get(daysString.charAt(index+1));
 
-                    for (;start <= end; start++) {
-                        days.add(Character.toString(daysOfTheWeek[start]));
-                    }
-                }
+                //     for (;start <= end; start++) {
+                //         days.add(Character.toString(daysOfTheWeek[start]));
+                //     }
+                // }
 
-                // if it is a list of days
-                else {
-                    for (int j = 0; j < daysString.length(); j++) {
-                        days.add(Character.toString(daysString.charAt(j)));
-                    }
-                }
+                // // if it is a list of days
+                // else {
+                //     for (int j = 0; j < daysString.length(); j++) {
+                //         days.add(Character.toString(daysString.charAt(j)));
+                //     }
+                // }
 
                 // add time slots
                 this.timeSlots.add(new Time(i, startHour, startMinute, endHour, endMinute, days));
@@ -264,49 +270,28 @@ public class ScheduleMakerTime {
     }
 
     // creating a 2d array that stores whether a 2 times conflict or not
-    public void createTimeMatrix(String timeChoice) {
+    public void createTimeMatrix() {
         this.timeConflict = new boolean[this.numTimeSlots + 1][this.numTimeSlots + 1];
 
-        if (timeChoice.equals("o")) {
-            for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
-                for (int t2 = 1; t2 <= t1; t2++) {
-
-                    if (t1 == t2) {
-                        this.timeConflict[t1][t2] = true;
-                        break;
-                    }
-
-                    Time time1 = timeSlots.get(t1);
-                    Time time2 = timeSlots.get(t2);
-                    boolean timeConflict = checkingTimeConflict(time1, time2);
-
-                    this.timeConflict[t1][t2] = timeConflict;
-                    this.timeConflict[t2][t1] = timeConflict;
-                }
-            }
-        }
-
-        else {
-            for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
-                for (int t2 = 1; t2 <= this.numTimeSlots; t2++) {
-                    this.timeConflict[t1][t2] = false;
-                }
-            }
-        }
-
         for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
-                for (int t2 = 1; t2 <= this.numTimeSlots; t2++) {
-                    if (timeConflict[t1][t2]) {
-                        System.out.print("Y ");
-                    }
-                    else {
-                        System.out.print("N ");
-                    }
+            for (int t2 = 1; t2 <= t1; t2++) {
+
+                
+                if (t1 == t2) {
+                    this.timeConflict[t1][t2] = true;
+                    break;
                 }
-                System.out.println();
-            
+
+                Time time1 = timeSlots.get(t1);
+                Time time2 = timeSlots.get(t2);
+                boolean timeConflict = checkingTimeConflict(time1, time2);
+
+                this.timeConflict[t1][t2] = timeConflict;
+                this.timeConflict[t2][t1] = timeConflict;
+            }
         }
     }
+
 
     public static boolean checkingTimeConflict(Time time1, Time time2) {
         boolean matchingDay = false;
@@ -343,7 +328,6 @@ public class ScheduleMakerTime {
 
         // current time slot
         int currentTimeSlot = 1;
-        int tConflictCount = 0;
 
         // for each edge, in order of increasing conflicts. 
         for (Edge e : edges) {
@@ -431,20 +415,13 @@ public class ScheduleMakerTime {
                     classOne.setPlaced(true);
                     professorOne.addTeachingTime(classOne.getTimeSlot());
                 }
-            }
-
-            if (tConflict) {
-                tConflictCount++;
-            }
+            }   
 
         // else neither class has been placed but there are no empty time slots. Therefore, do nothing. 
         }
 
-        System.out.println(tConflictCount);
-
         Hashtable<String, ArrayList<Integer>> studentsTimeSlots = new Hashtable<String, ArrayList<Integer>>(); // associates student string with the list of classes they are interested in. 
 
-        int sConflictsCount = 0;
         // once we have class schedule set, start adding students to classes: O(s)
         for (int t = 1; t <= this.numTimeSlots; t++ ) {
 
@@ -463,11 +440,10 @@ public class ScheduleMakerTime {
 
                 //get the room size
                 int limit = rooms.get(r).getRoomSize();
-                classInSlot.setRoomSize(limit);
 
                 // for each student who is interested in the class
                 for (String student: classInSlot.interestedStudents) {
-                    boolean sConflict = false; 
+
                     // if student has not been placed into any class, room, or timeslot yet. Therefore, no possible time conflict: 
                     if (!studentsTimeSlots.containsKey(student)) { 
                         studentsTimeSlots.put(student, new ArrayList<Integer>(numTimeSlots)); // start with initial capacity of the number of timeslots, so the arraylist never needs to double in underlying array size. 
@@ -475,32 +451,28 @@ public class ScheduleMakerTime {
                         studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
                         classInSlot.addEnrolledStudent(student);  // enroll the student into the class. 
                         studentEnrolledValue++;
+                        // decrease room limit by 1
+                        limit--;
                         
                     }
                     else { // student has already been placed into a timeslot. 
                         //for every time slot the student is already enrolled in: 
+                        boolean conflicts = false; 
                         for (int enrolledTimeSlot : studentsTimeSlots.get(student))  {
                             if (this.timeConflict[enrolledTimeSlot][t]) { // if the time that it's already in conflicts with this time slot:
-                                sConflict = true;  // then the student can't be placed into this time slot, because it is already busy during this time slot. 
+                                conflicts = true;  // then the student can't be placed into this time slot, because it is already busy during this time slot. 
                                 break;
                             }
                         }
-                        if (!sConflict) { // if student doesn't have any other conflicts during this timeSlot. 
+                        if (!conflicts) { // if student doesn't have any other conflicts during this timeSlot. 
                             // add student to the time slot and class
                             studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
                             classInSlot.addEnrolledStudent(student);  // enroll the student into the class.                   
                             studentEnrolledValue++; // increase the pref value
+                            // decrease room limit by 1
+                            limit--;
                         }
                                        
-                    }
-                    // decrease room limit by 1
-
-                    if (!sConflict) {
-                        limit--;
-                    }
-
-                    if (sConflict) {
-                        sConflictsCount++;
                     }
 
                     // if room is full, do not put any more students
@@ -508,8 +480,6 @@ public class ScheduleMakerTime {
                 }
             }
         }
-
-        System.out.println(sConflictsCount);
     }
 
     public void printSchedule() { 
@@ -534,8 +504,6 @@ public class ScheduleMakerTime {
                 // Create a FileWriter with the given file name
                 FileWriter fileWriter = new FileWriter(fileName);
         
-                fileWriter.write(studentEnrolledValue/bestCaseValue * 100 + "\n");
-
                 // Write the header to the file
                 fileWriter.write("Course\tRoom\tTeacher\tTime\tStudents\n");
     
@@ -543,12 +511,7 @@ public class ScheduleMakerTime {
                 for(int i = 1; i < classNumbers.size(); i++) { 
                     String classNumber = classNumbers.get(i);
                     Class c = classes.get(classNumber); 
-
-                    if (c.getTimeSlot() == 0) {
-                        continue;
-                    }
-
-                    String formatText = String.format("%s\t%d / %d / %d\t%s\t%s\t%s\t", c.getClassNumber(), c.getEnrolledStudent().size(), c.getRoomSize(), c.getInterestedStudents().size(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+                    String formatText = String.format("%s\t%d / %d\t%s\t%s\t%s\t", c.getClassNumber(), c.getNumEnrolledStudents(), c.getNumInterestedStudents(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
                     fileWriter.write(formatText);
                     for (String student : c.getEnrolledStudent()) { 
                         fileWriter.write(student + " ");

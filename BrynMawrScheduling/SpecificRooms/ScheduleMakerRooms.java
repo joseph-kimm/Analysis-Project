@@ -191,6 +191,7 @@ public class ScheduleMakerRooms {
                     }
                 }
             }
+            
         // error in case file does not open
         } catch (FileNotFoundException fnf) { 
             System.err.println("Could not open the file" + fnf); 
@@ -378,6 +379,8 @@ public class ScheduleMakerRooms {
                     // add to first room that it prefers
                     for (Room r: classOne.getPossibleRooms()) {
                         classOne.setRoomName(r.getRoomName());
+                        classOne.setAssignedRoom(r);
+                        classOne.setRoomCap(r.getRoomSize());
                         roomFilled[currentTimeSlot][r.getIndex()] = true;
                         classOne.setPlaced(true);
                         professorOne.addTeachingTime(currentTimeSlot);
@@ -389,6 +392,8 @@ public class ScheduleMakerRooms {
                             timeSlotClasses[currentTimeSlot].add(classTwo); 
                             classTwo.setTimeSlot(currentTimeSlot);
                             classTwo.setRoomName(r.getRoomName());
+                            classTwo.setAssignedRoom(r);
+                            classTwo.setRoomCap(r.getRoomSize());
                             roomFilled[currentTimeSlot][r.getIndex()] = true;
                             classTwo.setPlaced(true);
                             professorTwo.addTeachingTime(currentTimeSlot);
@@ -401,6 +406,8 @@ public class ScheduleMakerRooms {
                     currentTimeSlot ++;
                 }     
             }
+
+            else if (currentTimeSlot <= numTimeSlots) {continue;}
 
             // else if 1 IS placed and 2 is NOT: 
             else if (classOne.getPlaced() && !classTwo.getPlaced()) {
@@ -420,6 +427,8 @@ public class ScheduleMakerRooms {
                     for (Room r: classTwo.getPossibleRooms()) {
                         if (!roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()]) { // if no class in room
                             classTwo.setRoomName(r.getRoomName()); // place in room
+                            classTwo.setAssignedRoom(r);
+                            classTwo.setRoomCap(r.getRoomSize());
                             roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()] = true;
                             timeSlotClasses[timeslot].add(classTwo); 
                             classTwo.setTimeSlot(timeslot);
@@ -448,11 +457,14 @@ public class ScheduleMakerRooms {
                     for (Room r: classOne.getPossibleRooms()) {
                         if (!roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()]) { // if no class in room
                             classOne.setRoomName(r.getRoomName()); // place in room
+                            classOne.setAssignedRoom(r);
+                            classOne.setRoomCap(r.getRoomSize());
                             roomFilled[timeslot][rooms.get(r.getRoomName()).getIndex()] = true;
                             timeSlotClasses[classTwo.getTimeSlot()].add(classOne); 
                             classOne.setTimeSlot(classTwo.getTimeSlot());
                             classOne.setPlaced(true);
                             professorOne.addTeachingTime(classOne.getTimeSlot());
+                            break;
                         }
                     }
                 }
@@ -480,7 +492,7 @@ public class ScheduleMakerRooms {
                 // classInSlot.setRoomName(roomList.get(r).getRoomName());
 
                 //get the room size
-                int limit = roomList.get(r).getRoomSize();
+                int limit = classInSlot.getAssignedRoom().getRoomSize();
 
                 // for each student who is interested in the class
                 for (String student: classInSlot.interestedStudents) {
@@ -492,6 +504,8 @@ public class ScheduleMakerRooms {
                         studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
                         classInSlot.addEnrolledStudent(student);  // enroll the student into the class. 
                         studentEnrolledValue++;
+                        // decrease room limit by 1
+                        limit--;
                         
                     }
                     else { // student has already been placed into a timeslot. 
@@ -508,11 +522,11 @@ public class ScheduleMakerRooms {
                             studentsTimeSlots.get(student).add(t); // mark that the student is in this timeSlot. 
                             classInSlot.addEnrolledStudent(student);  // enroll the student into the class.                   
                             studentEnrolledValue++; // increase the pref value
+                            // decrease room limit by 1
+                            limit--;
                         }
                                        
                     }
-                    // decrease room limit by 1
-                    limit--;
 
                     // if room is full, do not put any more students
                     if (limit == 0) {break;}
@@ -550,7 +564,7 @@ public class ScheduleMakerRooms {
                 for(int i = 1; i < classNumbers.size(); i++) { 
                     String classNumber = classNumbers.get(i);
                     Class c = classes.get(classNumber); 
-                    String formatText = String.format("%s\t%s\t%s\t%s\t", c.getClassNumber(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
+                    String formatText = String.format("%s\t%d / %d / %d\t%s\t%s\t%s\t", c.getClassNumber(), c.getNumEnrolledStudents(), c.getNumInterestedStudents(), c.getRoomCap(), c.getRoomName(), c.getProfessor(), c.getTimeSlot()); 
                     fileWriter.write(formatText);
                     for (String student : c.getEnrolledStudent()) { 
                         fileWriter.write(student + " ");

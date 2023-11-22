@@ -1,6 +1,5 @@
 /**
  * Description:     Stores the identification number and teaching times for a single professor. 
- * Last Modified:   Nov 12, 2023
  */
 
 import java.util.ArrayList;
