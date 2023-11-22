@@ -40,14 +40,11 @@ public class ScheduleMaker {
     public ScheduleMaker(String constraintsFile, String studentFile, String schedule) { 
         //Process the input: 
         readingInput(constraintsFile, studentFile); 
-        long start = System.nanoTime();
         createClassPairs();
         makeSchedule(); 
-        nanoSecondsElapsed = (System.nanoTime() - start);
-        /*System.out.println("Student Preference Value: " + studentPrefValue);
-        System.out.println("Best Case Student Value: " + bestCaseValue);*/
+        System.out.println("Student Preference Value: " + studentPrefValue);
+        System.out.println("Best Case Student Value: " + bestCaseValue);
         System.out.printf("Fit: %2.2f%%%n", studentPrefValue/bestCaseValue * 100);
-        //System.out.printf("Time elapsed: %,d microseconds%n", (finish-start)/1000);
         writeSchedule(schedule);
     }
     
@@ -176,9 +173,6 @@ public class ScheduleMaker {
         // removing the dummy class in ArrayList of classes
         classes.remove(0);
 
-        // (4) time check for sorting pairs of classes: O(c^2 log c^2)
-        //long time4start = System.nanoTime();
-
         // sort edges in increasing order of conflicts.
         edges.sort(null); 
     }
@@ -200,7 +194,6 @@ public class ScheduleMaker {
 
         // true if the class is already in a timeSlot, false if not. 1 through class number to make our lives easier.
         Boolean[] classPlaced = new Boolean[numClasses + 1];
-
 
         for (int i = 1; i < classPlaced.length; i++ ) { 
             // every class starts as not already placed in a time slot. 

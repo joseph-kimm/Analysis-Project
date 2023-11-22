@@ -32,6 +32,11 @@ public class ScheduleMakerTime {
     private ArrayList<Edge> edges = new ArrayList<>(); // conflict between 2 classes in increasing order of popularity
     private long nanoSecondsElapsed; 
 
+    private int zeroConflictEdges = 0;
+    private int nonZeroConflictEdges = 0;
+
+    private int moreInterestedThanSize = 0;
+
     public static void main(String[] args) { 
 
         if (args.length != 4) {
@@ -267,7 +272,7 @@ public class ScheduleMakerTime {
     public void createTimeMatrix(String timeChoice) {
         this.timeConflict = new boolean[this.numTimeSlots + 1][this.numTimeSlots + 1];
 
-        if (timeChoice.equals("o")) {
+        if (!timeChoice.equals("n")) {
             for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
                 for (int t2 = 1; t2 <= t1; t2++) {
 
@@ -289,7 +294,13 @@ public class ScheduleMakerTime {
         else {
             for (int t1 = 1; t1 <= this.numTimeSlots; t1++) {
                 for (int t2 = 1; t2 <= this.numTimeSlots; t2++) {
-                    this.timeConflict[t1][t2] = false;
+
+                    if (t1 == t2) {
+                        this.timeConflict[t1][t2] = true;
+                    }
+                    else {
+                        this.timeConflict[t1][t2] = false;
+                    }
                 }
             }
         }
@@ -348,6 +359,14 @@ public class ScheduleMakerTime {
         // for each edge, in order of increasing conflicts. 
         for (Edge e : edges) {
 
+            if (e.getNumConflicts() ==0) {
+                this.zeroConflictEdges ++;
+            } 
+
+            else {
+                this.nonZeroConflictEdges ++;
+            }
+
             // get two classes with smallest conflict
             Class classOne = e.getc1();
             Class classTwo = e.getc2(); 
@@ -388,7 +407,11 @@ public class ScheduleMakerTime {
                     
                     //incrementing current timeslot
                     currentTimeSlot ++;
-                }     
+                }
+            }
+
+            else if (currentTimeSlot <= numTimeSlots) {
+                continue;
             }
 
             else if (currentTimeSlot <= numTimeSlots) {continue;}
@@ -465,8 +488,13 @@ public class ScheduleMakerTime {
                 int limit = rooms.get(r).getRoomSize();
                 classInSlot.setRoomSize(limit);
 
+                if (classInSlot.getInterestedStudents().size() > limit) {
+                    moreInterestedThanSize++;
+                }
+
                 // for each student who is interested in the class
                 for (String student: classInSlot.interestedStudents) {
+
                     boolean sConflict = false; 
                     // if student has not been placed into any class, room, or timeslot yet. Therefore, no possible time conflict: 
                     if (!studentsTimeSlots.containsKey(student)) { 
@@ -535,6 +563,9 @@ public class ScheduleMakerTime {
                 FileWriter fileWriter = new FileWriter(fileName);
         
                 fileWriter.write(studentEnrolledValue/bestCaseValue * 100 + "\n");
+                fileWriter.write("Zero Conflict:" + zeroConflictEdges + "\n");
+                fileWriter.write("Nonzero Conflict:" + nonZeroConflictEdges + "\n");
+                fileWriter.write("More students interested than room limit: " + moreInterestedThanSize + "\n");
 
                 // Write the header to the file
                 fileWriter.write("Course\tRoom\tTeacher\tTime\tStudents\n");
