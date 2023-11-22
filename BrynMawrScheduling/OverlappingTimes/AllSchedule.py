@@ -7,9 +7,10 @@ for i in range(2000, 2015):
     preference = f"Prefs/F{i}_pref.txt"
     overlap_schedule = f"Schedules/F{i}_o_schedule.txt"
     non_overlap_schedule = f"Schedules/F{i}_n_schedule.txt"
+    zoom_schedule = f"Schedules/F{i}_z_schedule.txt"
 
-    call(["java", "ScheduleMakerTime", "o", constraint, preference, overlap_schedule])
-    call(["java", "ScheduleMakerTime", "n", constraint, preference, non_overlap_schedule])
+    call(["java", "ScheduleMakerZoom", "z", constraint, preference, zoom_schedule])
+    #call(["java", "ScheduleMakerTime", "n", constraint, preference, non_overlap_schedule])
 
 
 #For spring courses
@@ -18,6 +19,7 @@ for i in range(2001, 2016):
     preference = f"Prefs/S{i}_pref.txt"
     overlap_schedule = f"Schedules/S{i}_o_schedule.txt"
     non_overlap_schedule = f"Schedules/S{i}_n_schedule.txt"
+    zoom_schedule = f"Schedules/S{i}_z_schedule.txt"
 
-    call(["java", "ScheduleMakerTime", "o", constraint, preference, overlap_schedule])
-    call(["java", "ScheduleMakerTime", "n", constraint, preference, non_overlap_schedule])
+    call(["java", "ScheduleMakerZoom", "z", constraint, preference, zoom_schedule])
+    #call(["java", "ScheduleMakerTime", "n", constraint, preference, non_overlap_schedule])

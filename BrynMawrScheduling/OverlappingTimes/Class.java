@@ -60,6 +60,10 @@ public class Class implements Comparable<Class>{
         return this.interestedStudents;
     }
 
+    public void enrollEveryone() {
+        this.enrolledStudents = this.interestedStudents;
+    }
+
     public int getIndex() {
         return index;
     }
