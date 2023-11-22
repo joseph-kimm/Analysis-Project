@@ -12,12 +12,13 @@ public class Class implements Comparable<Class>{
     protected int popularity; 
     protected int timeslot; 
     protected String roomName;
+    protected Room assignedRoom;
+    protected int roomCap;
     protected int numUnenrolledStudents; 
     protected HashSet<Room> possibleRooms = new HashSet<>();
     protected ArrayList<String> interestedStudents = new ArrayList<>();
     protected ArrayList<String> enrolledStudents = new ArrayList<>();
     protected boolean placed = false;
-    protected int roomSize; 
 
     public Class (int index, String classNumber, String professor) { 
         this.index = index;
@@ -69,6 +70,14 @@ public class Class implements Comparable<Class>{
         this.enrolledStudents.add(student);
     }
 
+    public Room getAssignedRoom() {
+        return assignedRoom;
+    }
+
+    public void setAssignedRoom(Room assignment) {
+        this.assignedRoom = assignment;
+    }
+
     public ArrayList<String> getEnrolledStudent() {
         return this.enrolledStudents;
     }
@@ -85,6 +94,14 @@ public class Class implements Comparable<Class>{
         return this.numUnenrolledStudents; 
     }
 
+    public int getNumInterestedStudents() { 
+        return this.getInterestedStudents().size(); 
+    }
+
+    public int getNumEnrolledStudents() { 
+        return this.getEnrolledStudent().size(); 
+    }
+    
     public int getIndex() {
         return index;
     }
@@ -137,16 +154,16 @@ public class Class implements Comparable<Class>{
         this.placed = newPlaced;
     }
 
-    public void setRoomSize(int roomSize) { 
-        this.roomSize = roomSize; 
-    }
-
-    public int getRoomSize() { 
-        return this.roomSize; 
-    }
-
     public void setPossibleRoom(Room someRoom) {
         this.possibleRooms.add(someRoom);
+    }
+
+    public void setRoomCap(int cap) {
+        this.roomCap = cap;
+    }
+
+    public int getRoomCap() {
+        return roomCap;
     }
     
     /* Check if a class can be placed in this room */
