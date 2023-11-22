@@ -414,6 +414,8 @@ public class ScheduleMakerTime {
                 continue;
             }
 
+            else if (currentTimeSlot <= numTimeSlots) {continue;}
+
             // else if 1 IS placed and 2 is NOT: 
             else if (classOne.getPlaced() && !classTwo.getPlaced()) {
 

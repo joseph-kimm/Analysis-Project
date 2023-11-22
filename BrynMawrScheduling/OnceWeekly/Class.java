@@ -1,6 +1,5 @@
 /**
  * Description:     Stores the data for a single class available for a schedule, as well as a comparator based on popularity (interested students).
- * Last Modified:   Nov 19, 2023
  */
 
 import java.util.ArrayList;
@@ -84,6 +83,14 @@ public class Class implements Comparable<Class>{
 
     public boolean getPlaced() {
         return placed;
+    }
+
+    public int getNumEnrolledStudents() {
+        return this.enrolledStudents.size();
+    }
+
+    public int getNumInterestedStudents() {
+        return this.interestedStudents.size();
     }
 
     public HashSet<Room> getPossibleRooms() {
