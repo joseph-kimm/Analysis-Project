@@ -1,6 +1,5 @@
 /**
  * Description:     Stores the data for a single class available for a schedule, as well as a comparator based on popularity (interested students).
- * Last Modified:   Nov 12, 2023
  */
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class Class implements Comparable<Class>{
     }
 
     /*
-     * add students who are interested in the course
+     * Add a students interested in the course by their ID
      */
     public void addInterestedStudent(int student) {
         this.interestedStudents.add(student);

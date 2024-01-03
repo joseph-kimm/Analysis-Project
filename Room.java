@@ -1,6 +1,5 @@
 /**
  * Description:     Stores the data for a single room, as well as a comparator based on size.
- * Last Modified:   Nov 12, 2023
  */
 
 public class Room implements Comparable<Room> {
@@ -20,6 +19,9 @@ public class Room implements Comparable<Room> {
         return this.roomSize;
     }
 
+    /*
+     * Sorts rooms by size in descending order.
+     */
     public int compareTo(Room thatRoom) { 
         // if this returns a positive number, it means that thatRoom is more popular than this class. 
         // This makes a little less sense than I'd typically do, but it means that when we call .sort() on the arraylist, 

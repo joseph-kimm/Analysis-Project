@@ -50,7 +50,8 @@ public class ScheduleMaker {
     
     /* 
      * Given a filename, will initialize class variables. 
-     * @param fileName the file to read
+     * @param constraintsFile the file containing the number of time slots and classes, room sizes, and teacher assignments
+     * @param studentFile the file containing class preferences for each student
      */
     public void readingInput(String constraintsFile, String studentFile) { 
 

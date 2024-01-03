@@ -3,7 +3,6 @@
  *                  the average # of microseconds to generate a schedule at different values of students and/or classes.
  * Usage:           java TimeAnalysis <s - to only analyze students> <c - to only analyze classes>
  *                  With no arguments, the program will analyze both.
- * Last Modified:   Nov 12, 2023
  */
 
 public class TimeAnalysis { // number of times to run because each test. 
